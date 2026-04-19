@@ -3,335 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Fazenda">
-<meta name="theme-color" content="#2a5c1f">
-<title>Gestão da Fazenda</title>
-<link id="pwa-icon" rel="apple-touch-icon">
+<title>Fazenda - Gestão Grátis</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 
 <style>
 :root {
-  --g: #2a5c1f; --g2: #3d8530; --gl: #e8f5e2;
-  --t: #9b6031; --tl: #fdf0e5;
-  --a: #c8920a; --al: #fff8e0;
-  --d: #d63031; --dl: #ffeaea;
-  --b: #1a5ec8; --bl: #e3f0ff;
-  --bg: #f2f4f0; --card: #fff;
-  --tx: #1a1f16; --tx2: #6b7566; --tx3: #a8b0a2;
-  --br: #e0e5db;
-  --st: env(safe-area-inset-top, 44px);
-  --sb: env(safe-area-inset-bottom, 20px);
+  --g: #2a5c1f; --gl: #e8f5e2; --tx: #1a1f16; --br: #e0e5db;
+  --st: env(safe-area-inset-top, 20px); --sb: env(safe-area-inset-bottom, 20px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; font-family: -apple-system, 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--tx); -webkit-font-smoothing: antialiased; }
+body { font-family: -apple-system, system-ui, sans-serif; background: #f2f4f0; color: var(--tx); height: 100vh; overflow: hidden; }
+
+/* Splash Screen Minimalista */
+#splash { position: fixed; inset: 0; z-index: 9999; background: var(--g); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+#splash.hide { opacity: 0; pointer-events: none; }
+
 #app { height: 100vh; display: flex; flex-direction: column; }
-.topbar { background: var(--g); padding: var(--st) 18px 14px; display: flex; align-items: flex-end; justify-content: space-between; flex-shrink: 0; }
-.tb-title { font-size: 21px; font-weight: 800; color: #fff; letter-spacing: -.4px; }
-.tb-sub { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
-#pages { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
-.page { display: none; padding: 16px 16px 32px; }
-.page.active { display: block; }
-.bnav { background: rgba(255,255,255,.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--br); display: flex; padding-bottom: var(--sb); flex-shrink: 0; z-index: 20; }
-.nb { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; font-size: 10px; font-weight: 600; color: var(--tx3); background: none; border: none; cursor: pointer; gap: 3px; }
-.nb .ni { font-size: 22px; }
-.nb.active { color: var(--g); }
-.card { background: var(--card); border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,.07); overflow: hidden; margin-bottom: 14px; }
-.ch { padding: 13px 16px; border-bottom: 1px solid var(--br); display: flex; align-items: center; justify-content: space-between; }
-.ct { font-size: 14px; font-weight: 700; }
-.cb { padding: 14px 16px; }
-.sg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.st { border-radius: 14px; padding: 16px 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
-.st.g { background: var(--gl); }
-.st.y { background: var(--al); }
-.st.r { background: var(--dl); }
-.st.t { background: var(--tl); }
-.sl { font-size: 11px; font-weight: 600; color: var(--tx2); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
-.sv { font-size: 26px; font-weight: 800; color: var(--tx); line-height: 1; }
-.ss { font-size: 11px; color: var(--tx2); margin-top: 4px; }
-.sec { font-size: 11px; font-weight: 700; color: var(--tx2); text-transform: uppercase; letter-spacing: .8px; margin: 18px 0 10px; }
-.fg { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-.fl { font-size: 11px; font-weight: 700; color: var(--tx2); text-transform: uppercase; letter-spacing: .5px; }
-.fi, .fsel, .fta { width: 100%; padding: 12px 13px; font-size: 15px; font-weight: 500; background: var(--bg); border: 1.5px solid var(--br); border-radius: 12px; outline: none; }
-.fta { resize: none; min-height: 76px; }
-.btn { font-weight: 700; font-size: 15px; padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px; }
-.bg { background: var(--g); color: #fff; }
-.bt { background: var(--t); color: #fff; }
-.bx { background: #1d6f42; color: #fff; }
-.bsm { font-size: 12px; padding: 7px 14px; width: auto; display: inline-flex; }
-.bdel { background: var(--dl); color: var(--d); font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 12px; border: none; }
-.lrow { display: flex; align-items: flex-start; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--br); gap: 10px; }
-.lm { flex: 1; min-width: 0; }
-.ltit { font-size: 15px; font-weight: 700; }
-.lsub { font-size: 12px; color: var(--tx2); }
-.badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-.bok { background: var(--gl); color: var(--g2); }
-.bb { background: var(--dl); color: var(--d); }
-.fab { position: fixed; bottom: calc(83px + var(--sb) + 14px); right: 18px; width: 56px; height: 56px; border-radius: 28px; background: var(--g); color: #fff; font-size: 28px; border: none; box-shadow: 0 4px 20px rgba(42,92,31,.45); display: flex; align-items: center; justify-content: center; z-index: 50; }
-.mo { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: none; align-items: flex-end; }
-.mo.open { display: flex; }
-.ms { background: #fff; width: 100%; border-radius: 22px 22px 0 0; padding: 20px 20px calc(20px + var(--sb)); max-height: 92vh; overflow-y: auto; }
-.mh { width: 40px; height: 4px; background: var(--br); border-radius: 4px; margin: 0 auto 18px; }
-.mtit { font-size: 18px; font-weight: 800; margin-bottom: 18px; }
-#splash { position: fixed; inset: 0; z-index: 9999; background: var(--g); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-#splash.hide { display: none; }
-.empty { text-align: center; padding: 30px; color: var(--tx3); }
+.topbar { background: var(--g); padding: var(--st) 18px 14px; color: #fff; }
+#pages { flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
+.page { display: none; } .page.active { display: block; }
+
+.card { background: #fff; border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.btn { background: var(--g); color: #fff; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; }
+.btn-alt { background: #5d7a54; }
+
+.bnav { background: #fff; border-top: 1px solid var(--br); display: flex; padding-bottom: var(--sb); }
+.nb { flex: 1; padding: 15px; border: none; background: none; font-size: 12px; color: #a8b0a2; text-align: center; }
+.nb.active { color: var(--g); font-weight: bold; }
+
+.lrow { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+.empty { text-align: center; color: #999; padding: 20px; }
 </style>
 </head>
 <body>
 
 <div id="splash">
-    <div class="spt" style="color: white; font-size: 24px; font-weight: bold;">Fazenda</div>
-    <div style="color: rgba(255,255,255,0.7)">Carregando sistema...</div>
+    <div style="color: white; font-weight: bold; font-size: 20px;">🚜 Carregando Fazenda...</div>
 </div>
 
 <div id="app">
-  <div class="topbar">
-    <div>
-      <div class="tb-title" id="tt">Fazenda</div>
-      <div class="tb-sub" id="ts">Painel geral</div>
-    </div>
-  </div>
-
-  <div id="pages">
-    <div id="pg-dash" class="page active">
-      <div class="sg" id="dash-grid"></div>
-      <div class="sec">Alertas de estoque</div>
-      <div id="dash-alertas"></div>
+    <div class="topbar">
+        <h2 id="tt">Início</h2>
     </div>
 
-    <div id="pg-compras" class="page">
-      <div class="card">
-        <div class="ch">
-          <span class="ct" id="compras-total">Total: R$ 0,00</span>
-          <button class="btn bx bsm" onclick="expXlsx()">Excel</button>
+    <div id="pages">
+        <div id="pg-dash" class="page active">
+            <div class="card" id="dash-resumo">Bem-vindo, Samuel.</div>
+            <div class="card">
+                <h3>Resumo de Estoque</h3>
+                <div id="resumo-estoque"></div>
+            </div>
         </div>
-        <div style="padding:15px; border-bottom: 1px solid var(--br);">
-            <div class="fl" style="margin-bottom:8px">Importar XML da Nota (NF-e)</div>
-            <input type="file" id="xmlNota" accept=".xml" style="font-size:12px">
-            <button class="btn bg bsm" onclick="importarNota()">Importar XML</button>
+
+        <div id="pg-compras" class="page">
+            <div class="card">
+                <h3>Entrada de Insumos</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Importe o arquivo XML que você recebe por e-mail ou via WhatsApp do fornecedor.</p>
+                
+                <input type="file" id="xml-input" accept=".xml" style="display:none" onchange="importarXML()">
+                <button class="btn" onclick="document.getElementById('xml-input').click()">📄 Importar XML da Nota</button>
+                
+                <button class="btn btn-alt" onclick="alert('Dica: Peça sempre o arquivo .xml para seu fornecedor. É a forma mais rápida e 100% grátis de alimentar o sistema.')">💡 Por que usar XML?</button>
+            </div>
+            
+            <div class="card">
+                <h3>Últimas Compras</h3>
+                <div id="lista-compras"></div>
+            </div>
         </div>
-        <div style="padding:15px; background: var(--al)">
-            <div class="fl" style="margin-bottom:8px">Importar Nota por Foto (OCR)</div>
-            <input type="file" id="fotoNota" accept="image/*" capture="environment">
-            <button class="btn bt bsm" onclick="lerFotoNota()">Processar Foto</button>
+
+        <div id="pg-estoque" class="page">
+            <div class="card">
+                <h3>Baixa de Insumos</h3>
+                <select id="sel-insumo" style="width:100%; padding:10px; margin-top:10px; border-radius:8px;"></select>
+                <input type="number" id="qtd-uso" placeholder="Quantidade usada" style="width:100%; padding:10px; margin-top:10px; border-radius:8px; border:1px solid #ccc;">
+                <button class="btn" onclick="registrarUso()">Dar Baixa</button>
+            </div>
+            <div id="lista-estoque-completa"></div>
         </div>
-        <div style="padding:0 16px" id="lista-compras"></div>
-      </div>
     </div>
 
-    <div id="pg-estoque" class="page">
-        <div class="sec">Registrar uso</div>
-        <div class="card"><div class="cb">
-            <div class="fg"><label class="fl">Insumo</label><select class="fsel" id="u-ins"></select></div>
-            <div class="fg"><label class="fl">Quantidade</label><input type="number" class="fi" id="u-qtd" placeholder="0"></div>
-            <button class="btn bt" onclick="registrarUso()">Registrar uso</button>
-        </div></div>
-        <div class="sec">Saldos</div>
-        <div class="card"><div style="padding:0 16px" id="lista-est"></div></div>
-    </div>
-  </div>
-
-  <nav class="bnav">
-    <button class="nb active" onclick="navTo('dash',this,'Fazenda','Painel')">📊<br>Painel</button>
-    <button class="nb" onclick="navTo('compras',this,'Compras','Histórico')">🛒<br>Compras</button>
-    <button class="nb" onclick="navTo('estoque',this,'Estoque','Saldo')">📦<br>Estoque</button>
-  </nav>
-</div>
-
-<button class="fab" id="fab" onclick="abreM('m-compra')">+</button>
-
-<div class="mo" id="m-compra">
-  <div class="ms">
-    <div class="mh" onclick="fechaM('m-compra')"></div>
-    <div class="mtit">Nova Compra Manual</div>
-    <div class="fg"><label class="fl">Produto</label><input type="text" class="fi" id="c-nome"></div>
-    <div class="fg"><label class="fl">Qtd</label><input type="number" class="fi" id="c-qtd"></div>
-    <div class="fg"><label class="fl">Valor Unit.</label><input type="number" class="fi" id="c-val"></div>
-    <button class="btn bg" onclick="salvarCompraManual()">Salvar</button>
-  </div>
+    <nav class="bnav">
+        <button class="nb active" onclick="nav('dash', this)">📊 Painel</button>
+        <button class="nb" onclick="nav('compras', this)">🛒 Compras</button>
+        <button class="nb" onclick="nav('estoque', this)">📦 Estoque</button>
+    </nav>
 </div>
 
 <script>
-var DB='fazenda_v4';
-var db={compras:[],usos:[],funcs:[]};
+// Banco de Dados Local (LocalStorage) - 100% Grátis
+let db = JSON.parse(localStorage.getItem('fazenda_v1') || '{"compras":[], "usos":[]}');
+const salvar = () => localStorage.setItem('fazenda_v1', JSON.stringify(db));
 
-function salvar(){localStorage.setItem(DB,JSON.stringify(db));}
-function carregar(){
-    var d=localStorage.getItem(DB);
-    if(d) db=JSON.parse(d);
+// Inicialização rápida
+window.onload = () => {
+    renderDash();
+    setTimeout(() => {
+        document.getElementById('splash').classList.add('hide');
+    }, 600);
+};
+
+function nav(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+    document.getElementById('pg-' + id).classList.add('active');
+    el.classList.add('active');
+    document.getElementById('tt').innerText = el.innerText;
+    
+    if(id === 'compras') renderCompras();
+    if(id === 'estoque') renderEstoque();
 }
 
-// Navegação
-function navTo(id,btn,title,sub){
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-    document.getElementById('pg-'+id).classList.add('active');
-    btn.classList.add('active');
-    document.getElementById('tt').textContent=title;
-    document.getElementById('ts').textContent=sub;
-    if(id==='dash') renderDash();
-    if(id==='compras') renderCompras();
-    if(id==='estoque') { renderEst(); populaSelIns(); }
-}
+// IMPORTAÇÃO DE XML (GRÁTIS E SEM API)
+function importarXML() {
+    const file = document.getElementById('xml-input').files[0];
+    if (!file) return;
 
-function abreM(id){document.getElementById(id).classList.add('open');}
-function fechaM(id){document.getElementById(id).classList.remove('open');}
-
-// Lógica de Compras (XML e Foto)
-function adicionarCompraGenerica(nome, qtd, valor){
-    db.compras.push({
-        id: Date.now()+Math.random(),
-        data: new Date().toISOString().split('T')[0],
-        nome: nome,
-        qtd: parseFloat(qtd)||0,
-        val: parseFloat(valor)||0,
-        cat: 'Geral',
-        un: 'un'
-    });
-    salvar();
-}
-
-function importarNota(){
-    const fileInput=document.getElementById("xmlNota");
-    const file=fileInput.files[0];
-    if(!file){alert("Selecione o XML");return;}
-    const reader=new FileReader();
-    reader.onload=function(e){
-        const parser=new DOMParser();
-        const xml=parser.parseFromString(e.target.result,"text/xml");
-        const itens=xml.getElementsByTagName("det");
-        for(let i=0;i<itens.length;i++){
-            let nome=itens[i].getElementsByTagName("xProd")[0]?.textContent||"Produto";
-            let qtd=itens[i].getElementsByTagName("qCom")[0]?.textContent||"0";
-            let valor=itens[i].getElementsByTagName("vUnCom")[0]?.textContent||"0";
-            adicionarCompraGenerica(nome,qtd,valor);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(e.target.result, "text/xml");
+        
+        // Localiza os itens da nota (padrão NF-e brasileira)
+        const itens = xml.getElementsByTagName("det");
+        if (itens.length === 0) {
+            alert("Não encontramos produtos neste XML. Verifique se é uma NF-e válida.");
+            return;
         }
-        alert("XML importado!");
+
+        for (let i = 0; i < itens.length; i++) {
+            const nome = itens[i].getElementsByTagName("xProd")[0]?.textContent || "Produto";
+            const qtd = itens[i].getElementsByTagName("qCom")[0]?.textContent || "0";
+            const valor = itens[i].getElementsByTagName("vUnCom")[0]?.textContent || "0";
+
+            db.compras.push({
+                id: Date.now() + Math.random(),
+                nome: nome,
+                qtd: parseFloat(qtd),
+                valor: parseFloat(valor),
+                data: new Date().toLocaleDateString()
+            });
+        }
+
+        salvar();
         renderCompras();
+        alert(itens.length + " itens importados com sucesso!");
     };
     reader.readAsText(file);
 }
 
-async function lerFotoNota(){
-    const fileInput=document.getElementById("fotoNota");
-    const file=fileInput.files[0];
-    if(!file){alert("Tire uma foto da nota");return;}
-    alert("Iniciando leitura da imagem (OCR). Aguarde...");
-    
-    try {
-        const resultado = await Tesseract.recognize(file, 'por');
-        const texto = resultado.data.text;
-        const linhas = texto.split("\n");
-        let detectados = 0;
-
-        linhas.forEach(l => {
-            l = l.trim();
-            const match = l.match(/(\d+,\d{2})/); // Busca padrão de preço
-            if(match && l.length > 5){
-                let valor = match[0].replace(",",".");
-                let nome = l.replace(match[0],"").trim().substring(0,25);
-                if(nome.length > 3){
-                    adicionarCompraGenerica(nome, 1, valor);
-                    detectados++;
-                }
-            }
-        });
-        alert(detectados + " itens detectados e adicionados!");
-        renderCompras();
-    } catch (e) {
-        alert("Erro ao ler foto: " + e.message);
+function renderCompras() {
+    const cont = document.getElementById('lista-compras');
+    if (db.compras.length === 0) {
+        cont.innerHTML = '<div class="empty">Nenhuma compra importada.</div>';
+        return;
     }
+    cont.innerHTML = db.compras.slice(-10).reverse().map(c => `
+        <div class="lrow">
+            <span>${c.nome}</span>
+            <b>${c.qtd} un</b>
+        </div>
+    `).join('');
 }
 
-function salvarCompraManual(){
-    const n = document.getElementById('c-nome').value;
-    const q = document.getElementById('c-qtd').value;
-    const v = document.getElementById('c-val').value;
-    if(!n || !q || !v) return;
-    adicionarCompraGenerica(n,q,v);
-    fechaM('m-compra');
-    renderCompras();
-}
-
-function renderCompras(){
-    const lista = document.getElementById('lista-compras');
-    let html = '';
-    let total = 0;
-    db.compras.forEach(c => {
-        total += (c.qtd * c.val);
-        html += `<div class="lrow">
-            <div class="lm"><b>${c.nome}</b><br><small>${c.data}</small></div>
-            <div style="text-align:right">R$ ${(c.qtd*c.val).toFixed(2)}<br>
-            <button class="bdel" onclick="delCompra(${c.id})">x</button></div>
-        </div>`;
-    });
-    lista.innerHTML = html || '<div class="empty">Nenhuma compra</div>';
-    document.getElementById('compras-total').textContent = 'Total: R$ ' + total.toFixed(2);
-}
-
-function delCompra(id){
-    db.compras = db.compras.filter(c => c.id !== id);
-    salvar(); renderCompras();
-}
-
-// Estoque
-function renderEst(){
-    const lista = document.getElementById('lista-est');
+function renderEstoque() {
     const saldos = {};
-    db.compras.forEach(c => saldos[c.nome] = (saldos[c.nome]||0) + c.qtd);
-    db.usos.forEach(u => { if(saldos[u.ins]) saldos[u.ins] -= u.qtd; });
+    db.compras.forEach(c => saldos[c.nome] = (saldos[c.nome] || 0) + c.qtd);
+    db.usos.forEach(u => { if(saldos[u.nome]) saldos[u.nome] -= u.qtd; });
 
-    let html = '';
-    for(let item in saldos){
-        html += `<div class="lrow">
-            <div class="lm">${item}</div>
-            <div class="badge ${saldos[item]<=0?'bb':'bok'}">${saldos[item].toFixed(2)}</div>
-        </div>`;
-    }
-    lista.innerHTML = html || '<div class="empty">Estoque vazio</div>';
+    const sel = document.getElementById('sel-insumo');
+    sel.innerHTML = Object.keys(saldos).map(k => `<option value="${k}">${k}</option>`).join('');
+
+    const cont = document.getElementById('lista-estoque-completa');
+    cont.innerHTML = Object.keys(saldos).map(k => `
+        <div class="card">
+            <b>${k}</b>: ${saldos[k].toFixed(2)} em estoque
+        </div>
+    `).join('') || '<div class="empty">Estoque vazio.</div>';
 }
 
-function populaSelIns(){
-    const sel = document.getElementById('u-ins');
-    const items = [...new Set(db.compras.map(c=>c.nome))];
-    sel.innerHTML = items.map(i=>`<option>${i}</option>`).join('');
+function registrarUso() {
+    const nome = document.getElementById('sel-insumo').value;
+    const qtd = parseFloat(document.getElementById('qtd-uso').value);
+    if (!nome || !qtd) return;
+
+    db.usos.push({ nome, qtd, data: new Date().toISOString() });
+    salvar();
+    renderEstoque();
+    alert("Baixa registrada!");
 }
 
-function registrarUso(){
-    const ins = document.getElementById('u-ins').value;
-    const qtd = parseFloat(document.getElementById('u-qtd').value);
-    if(!ins || !qtd) return;
-    db.usos.push({ins, qtd, data: new Date().toISOString()});
-    salvar(); renderEst();
+function renderDash() {
+    const total = db.compras.length;
+    document.getElementById('dash-resumo').innerHTML = `<h3>Olá, Samuel</h3><p>Seu sistema está pronto. Você já importou ${total} itens.</p>`;
 }
-
-function renderDash(){
-    const grid = document.getElementById('dash-grid');
-    const tot = db.compras.reduce((a,b)=> a + (b.qtd*b.val), 0);
-    grid.innerHTML = `
-        <div class="st g"><div class="sl">Total Compras</div><div class="sv">R$ ${tot.toFixed(0)}</div></div>
-        <div class="st y"><div class="sl">Itens</div><div class="sv">${db.compras.length}</div></div>
-    `;
-}
-
-function expXlsx(){
-    var wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.compras), "Compras");
-    XLSX.writeFile(wb, "fazenda_compras.xlsx");
-}
-
-// Inicialização
-window.onload = () => {
-    carregar();
-    renderDash();
-    setTimeout(() => {
-        document.getElementById('splash').classList.add('hide');
-    }, 1000);
-};
 </script>
 </body>
 </html>

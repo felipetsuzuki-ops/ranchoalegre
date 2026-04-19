@@ -742,12 +742,10 @@ function previewNF(input){
     document.getElementById('nf-res').style.display='none';
     document.getElementById('nf-confirmar').style.display='none';
     document.getElementById('nf-stat').style.display='none';
-    analisarNF(e.target.result,file.type);
   };
   reader.readAsDataURL(file);
 }
 
-async function analisarNF(dataUrl,mimeType){
   var apiKey=document.getElementById('api-key').value.trim();
   if(!apiKey){statusNF('Informe sua chave API do Google Gemini acima.',true);return;}
   localStorage.setItem('fazenda_gemini',apiKey);

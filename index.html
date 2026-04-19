@@ -25,48 +25,26 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-/* AJUSTE PARA INTERFACE IGUAL (PC E CELULAR) */
-html, body { 
-  height: 100%; 
-  background: #cbd5e1; 
-  display: flex; 
-  justify-content: center; 
-  overflow: hidden; 
-  font-family: -apple-system, system-ui, sans-serif; 
-}
-
-#app { 
-  width: 100%; 
-  max-width: 480px; /* Mantém formato de celular no PC */
-  height: 100%; 
-  background: var(--bg); 
-  display: flex; 
-  flex-direction: column; 
-  position: relative; 
-  box-shadow: 0 0 30px rgba(0,0,0,0.2);
-}
+/* Centralização para ficar igual no PC e Celular */
+html, body { height: 100%; background: #cbd5e1; display: flex; justify-content: center; overflow: hidden; font-family: -apple-system, sans-serif; }
+#app { width: 100%; max-width: 480px; height: 100%; background: var(--bg); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.2); }
 
 .topbar { background: var(--g); padding: var(--st) 18px 14px; display: flex; align-items: flex-end; justify-content: space-between; flex-shrink: 0; }
 .tb-title { font-size: 21px; font-weight: 800; color: #fff; letter-spacing: -.4px; }
-
 #pages { flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
 .page { display: none; }
 .page.active { display: block; }
-
 .card { background: var(--card); border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,.07); margin-bottom: 14px; padding: 16px; }
 .btn { font-weight: 700; font-size: 15px; padding: 14px; border: none; border-radius: 12px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
 .btn-g { background: var(--g); color: #fff; }
 .btn-b { background: var(--b); color: #fff; }
 .btn-xls { background: #1d6f42; color: #fff; }
-
 .fi, .fsel, .fta { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid var(--br); border-radius: 10px; background: #f9f9f9; font-size: 15px; }
-.fta { height: 80px; resize: none; font-family: inherit; }
-
+.fta { height: 100px; resize: none; }
 .bnav { background: rgba(255,255,255,.97); border-top: 1px solid var(--br); display: flex; padding-bottom: var(--sb); flex-shrink: 0; }
 .nb { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px; font-size: 10px; font-weight: 600; color: var(--tx3); background: none; border: none; cursor: pointer; }
 .nb.active { color: var(--g); }
 .ni { font-size: 20px; margin-bottom: 3px; }
-
 #splash { position: absolute; inset: 0; z-index: 999; background: var(--g); display: flex; align-items: center; justify-content: center; transition: 0.4s; }
 #splash.hide { opacity: 0; pointer-events: none; }
 </style>
@@ -75,275 +53,200 @@ html, body {
 
 <div id="app">
   <div id="splash">
-    <div style="color: white; font-weight: bold; text-align: center;"><span style="font-size:40px">🚜</span><br>Fazenda Pro</div>
+    <div style="color: white; font-weight: bold; text-align: center;">🚜<br>Fazenda Local</div>
   </div>
 
-  <div class="topbar">
-    <div class="tb-title" id="tt">Painel</div>
-  </div>
+  <div class="topbar"><div class="tb-title" id="tt">Painel</div></div>
 
   <div id="pages">
     <div id="pg-dash" class="page active">
       <div class="card">
         <h3>Olá, Samuel</h3>
-        <p id="info-dash" style="color:var(--tx2); margin-top:5px">Carregando informações do estoque...</p>
-        <button class="btn btn-xls" onclick="exportarExcel()">📊 Extrair Estoque (Excel)</button>
+        <p id="info-dash">Carregando...</p>
+        <button class="btn btn-xls" onclick="exportarEstoqueExcel()">📊 Baixar Estoque (Excel)</button>
       </div>
     </div>
 
     <div id="pg-compras" class="page">
       <div class="card" style="background: var(--bl);">
-        <h4 style="color: var(--b)">⚡ Adicionar via Texto da Foto</h4>
-        <p style="font-size: 11px; color: var(--b); margin-bottom: 5px;">Cole o texto copiado da foto da nota abaixo:</p>
-        <textarea id="txt-foto-nota" class="fta" placeholder="Cole aqui o conteúdo da nota..."></textarea>
-        <button class="btn btn-b" onclick="processarTextoDaFoto()">Processar e Salvar</button>
+        <h4 style="color: var(--b)">Extrair Texto da Foto</h4>
+        <p style="font-size: 11px; margin-bottom: 5px;">Copie o texto da foto da nota e cole aqui:</p>
+        <textarea id="txt-camera" class="fta" placeholder="Cole o texto aqui..."></textarea>
+        <button class="btn btn-b" onclick="processarTextoLocal()">Adicionar Itens</button>
       </div>
-
       <div class="card">
-        <h4>Importar Nota (XML)</h4>
-        <input type="file" id="xmlNota" accept=".xml" style="display:none" onchange="importarNota()">
-        <button class="btn btn-g" onclick="document.getElementById('xmlNota').click()">📄 Selecionar Arquivo XML</button>
+        <h4>Importar XML</h4>
+        <input type="file" id="xmlInput" accept=".xml" style="display:none" onchange="lerXML()">
+        <button class="btn btn-g" onclick="document.getElementById('xmlInput').click()">Selecionar XML</button>
       </div>
-      <div id="lista-compras"></div>
+      <div id="lista-compras-html"></div>
     </div>
 
     <div id="pg-estoque" class="page">
       <div class="card">
-        <h4>Baixa de Material</h4>
-        <select id="sel-insumo-baixa" class="fsel"></select>
-        <input type="number" id="qtd-uso-insumo" class="fi" placeholder="Quantidade usada">
-        <button class="btn btn-g" onclick="confirmarBaixaEstoque()">Confirmar Uso</button>
+        <h4>Baixa</h4>
+        <select id="sel-insumo-local" class="fsel"></select>
+        <input type="number" id="qtd-baixa-local" class="fi" placeholder="Quantidade">
+        <button class="btn btn-g" onclick="confirmarBaixa()">Confirmar</button>
       </div>
-      <div id="lista-estoque-geral"></div>
+      <div id="lista-estoque-html"></div>
     </div>
 
     <div id="pg-equipe" class="page">
       <div class="card">
-        <h4>Atividade de Funcionário</h4>
-        <input type="text" id="input-func-nome" class="fi" placeholder="Nome do Funcionário">
-        <input type="text" id="input-func-tarefa" class="fi" placeholder="Tarefa (ex: Roçagem, Plantio)">
-        <button class="btn btn-g" onclick="registrarAtividadeEquipe()">Salvar Atividade</button>
+        <h4>Nova Atividade</h4>
+        <input type="text" id="func-nome" class="fi" placeholder="Funcionário">
+        <input type="text" id="func-tarefa" class="fi" placeholder="Tarefa">
+        <button class="btn btn-g" onclick="salvarTarefa()">Salvar</button>
       </div>
-      <div id="lista-atividades-equipe"></div>
+      <div id="lista-tarefas"></div>
     </div>
   </div>
 
   <nav class="bnav">
-    <button class="nb active" onclick="navegarApp('dash', this, 'Painel')"><span class="ni">📊</span>Painel</button>
-    <button class="nb" onclick="navegarApp('compras', this, 'Compras')"><span class="ni">🛒</span>Compras</button>
-    <button class="nb" onclick="navegarApp('estoque', this, 'Estoque')"><span class="ni">📦</span>Estoque</button>
-    <button class="nb" onclick="navegarApp('equipe', this, 'Equipe')"><span class="ni">👥</span>Equipe</button>
+    <button class="nb active" onclick="nav('dash', this, 'Painel')"><span class="ni">📊</span>Painel</button>
+    <button class="nb" onclick="nav('compras', this, 'Compras')"><span class="ni">🛒</span>Compras</button>
+    <button class="nb" onclick="nav('estoque', this, 'Estoque')"><span class="ni">📦</span>Estoque</button>
+    <button class="nb" onclick="nav('equipe', this, 'Equipe')"><span class="ni">👥</span>Equipe</button>
   </nav>
 </div>
 
 <script>
-// BANCO DE DADOS (MANTENDO SEU PADRÃO)
-var dadosFazenda = JSON.parse(localStorage.getItem('fazenda_dados_v1') || '{"compras":[], "baixas":[], "equipe":[]}');
-
-function salvarDados() {
-    localStorage.setItem('fazenda_dados_v1', JSON.stringify(dadosFazenda));
-}
+// Banco de dados Local
+var banco = JSON.parse(localStorage.getItem('fazenda_local_v1') || '{"compras":[], "usos":[], "tarefas":[]}');
+function salvar() { localStorage.setItem('fazenda_local_v1', JSON.stringify(banco)); }
 
 window.onload = function() {
-    atualizarPainel();
-    setTimeout(function() {
-        var splash = document.getElementById('splash');
-        if(splash) splash.classList.add('hide');
-        gerarIconeApp(); 
-    }, 1200);
+    renderDash();
+    setTimeout(function() { document.getElementById('splash').classList.add('hide'); }, 1000);
 };
 
-function navegarApp(idPagina, botao, tituloHeader) {
-    var paginas = document.getElementsByClassName('page');
-    for(var i=0; i<paginas.length; i++) { paginas[i].classList.remove('active'); }
-    
-    var botoes = document.getElementsByClassName('nb');
-    for(var j=0; j<botoes.length; j++) { botoes[j].classList.remove('active'); }
-    
-    document.getElementById('pg-' + idPagina).classList.add('active');
-    botao.classList.add('active');
-    document.getElementById('tt').innerText = tituloHeader;
-    
-    if(idPagina === 'compras') renderizarListaCompras();
-    if(idPagina === 'estoque') renderizarEstoque();
-    if(idPagina === 'equipe') renderizarEquipe();
+function nav(id, btn, tit) {
+    var p = document.getElementsByClassName('page');
+    for(var i=0; i<p.length; i++) p[i].classList.remove('active');
+    var b = document.getElementsByClassName('nb');
+    for(var i=0; i<b.length; i++) b[i].classList.remove('active');
+    document.getElementById('pg-'+id).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('tt').innerText = tit;
+    if(id==='compras') renderCompras();
+    if(id==='estoque') renderEstoque();
+    if(id==='equipe') renderTarefas();
 }
 
-// FUNÇÃO: PROCESSAR TEXTO DA FOTO (COPIAR E COLAR)
-function processarTextoDaFoto() {
-    var textoDigitado = document.getElementById('txt-foto-nota').value;
-    if(textoDigitado === "") return;
-    
-    var linhasTexto = textoDigitado.split('\n');
-    var contadorItens = 0;
-    
-    for(var i=0; i<linhasTexto.length; i++) {
-        var linha = linhasTexto[i];
-        var matchPreco = linha.match(/(\d+[\.,]\d{2})/);
-        
-        if(matchPreco && linha.length > 5) {
-            var nomeProduto = linha.replace(matchPreco[0], '').trim().toUpperCase();
-            dadosFazenda.compras.push({
+// LÓGICA SEM API (PROCESSAMENTO DE TEXTO)
+function processarTextoLocal() {
+    var txt = document.getElementById('txt-camera').value;
+    if(!txt) return;
+    var linhas = txt.split('\n');
+    linhas.forEach(function(l) {
+        var preco = l.match(/(\d+[\.,]\d{2})/); // Procura padrão de preço
+        if(preco) {
+            banco.compras.push({
                 id: Date.now() + Math.random(),
-                nome: nomeProduto,
-                quantidade: 1,
+                nome: l.replace(preco[0], '').trim().toUpperCase().substring(0,25),
+                qtd: 1,
                 data: new Date().toLocaleDateString()
             });
-            contadorItens++;
         }
-    }
-    
-    salvarDados();
-    renderizarListaCompras();
-    document.getElementById('txt-foto-nota').value = "";
-    alert(contadorItens + " itens adicionados ao sistema!");
+    });
+    salvar(); renderCompras();
+    document.getElementById('txt-camera').value = "";
+    alert("Processado!");
 }
 
-// FUNÇÃO: IMPORTAR XML (MANTENDO SUA LÓGICA)
-function importarNota() {
-    var arquivo = document.getElementById("xmlNota").files[0];
-    if(!arquivo) return;
-    var leitor = new FileReader();
-    leitor.onload = function(e) {
-        var xmlPronto = new DOMParser().parseFromString(e.target.result, "text/xml");
-        var itensXML = xmlPronto.getElementsByTagName("det");
-        for(var i=0; i<itensXML.length; i++) {
-            var nomeXML = itensXML[i].getElementsByTagName("xProd")[0]?.textContent || "PRODUTO";
-            var qtdXML = parseFloat(itensXML[i].getElementsByTagName("qCom")[0]?.textContent || 0);
-            dadosFazenda.compras.push({
-                id: Date.now() + i,
-                nome: nomeXML,
-                quantidade: qtdXML,
+function lerXML() {
+    var file = document.getElementById('xmlInput').files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var xml = new DOMParser().parseFromString(e.target.result, "text/xml");
+        var itens = xml.getElementsByTagName("det");
+        for(var i=0; i<itens.length; i++) {
+            banco.compras.push({
+                id: Date.now()+i,
+                nome: itens[i].getElementsByTagName("xProd")[0]?.textContent || "ITEM",
+                qtd: parseFloat(itens[i].getElementsByTagName("qCom")[0]?.textContent || 0),
                 data: new Date().toLocaleDateString()
             });
         }
-        salvarDados();
-        renderizarListaCompras();
-        alert("Nota Fiscal importada com sucesso!");
+        salvar(); renderCompras();
     };
-    leitor.readAsText(arquivo);
+    reader.readAsText(file);
 }
 
-function renderizarListaCompras() {
-    var container = document.getElementById('lista-compras');
-    container.innerHTML = "";
-    var ultimasCompras = dadosFazenda.compras.slice(-10).reverse();
-    
-    for(var i=0; i<ultimasCompras.length; i++) {
-        var item = ultimasCompras[i];
+function renderCompras() {
+    var c = document.getElementById('lista-compras-html');
+    c.innerHTML = "";
+    banco.compras.slice(-10).reverse().forEach(function(item) {
         var d = document.createElement('div');
-        d.style.padding = "10px";
-        d.style.borderBottom = "1px solid #eee";
-        d.style.display = "flex";
-        d.style.justifyContent = "space-between";
-        d.innerHTML = "<span>"+item.nome+"</span><b>"+item.quantidade+" un</b>";
-        container.appendChild(d);
+        d.style.padding = "10px"; d.style.borderBottom = "1px solid #eee";
+        d.innerHTML = "<span>"+item.nome+"</span> <b style='float:right'>"+item.qtd+" un</b>";
+        c.appendChild(d);
+    });
+}
+
+function renderEstoque() {
+    var saldo = {};
+    banco.compras.forEach(function(i) { saldo[i.nome] = (saldo[i.nome] || 0) + i.qtd; });
+    banco.usos.forEach(function(u) { if(saldo[u.nome]) saldo[u.nome] -= u.qtd; });
+
+    var sel = document.getElementById('sel-insumo-local');
+    sel.innerHTML = "";
+    var lista = document.getElementById('lista-estoque-html');
+    lista.innerHTML = "";
+
+    for(var n in saldo) {
+        var o = document.createElement('option'); o.value = n; o.innerText = n; sel.appendChild(o);
+        var card = document.createElement('div'); card.className = "card";
+        card.innerHTML = "<b>"+n+"</b> <span style='float:right'>"+saldo[n].toFixed(2)+"</span>";
+        lista.appendChild(card);
     }
 }
 
-// FUNÇÃO: ESTOQUE E EXCEL
-function renderizarEstoque() {
-    var calculoSaldo = {};
-    for(var i=0; i<dadosFazenda.compras.length; i++) {
-        var c = dadosFazenda.compras[i];
-        calculoSaldo[c.nome] = (calculoSaldo[c.nome] || 0) + c.quantidade;
-    }
-    for(var j=0; j<dadosFazenda.baixas.length; j++) {
-        var b = dadosFazenda.baixas[j];
-        if(calculoSaldo[b.nome]) { calculoSaldo[b.nome] -= b.quantidade; }
-    }
-
-    var selectInsumo = document.getElementById('sel-insumo-baixa');
-    selectInsumo.innerHTML = "";
-    var listaEstoque = document.getElementById('lista-estoque-geral');
-    listaEstoque.innerHTML = "";
-
-    for(var nomeItem in calculoSaldo) {
-        var opt = document.createElement('option');
-        opt.value = nomeItem;
-        opt.innerText = nomeItem;
-        selectInsumo.appendChild(opt);
-
-        var cardEstoque = document.createElement('div');
-        cardEstoque.className = "card";
-        cardEstoque.innerHTML = "<div style='display:flex; justify-content:space-between'><span>"+nomeItem+"</span><b>"+calculoSaldo[nomeItem].toFixed(2)+"</b></div>";
-        listaEstoque.appendChild(cardEstoque);
+function confirmarBaixa() {
+    var n = document.getElementById('sel-insumo-local').value;
+    var q = parseFloat(document.getElementById('qtd-baixa-local').value);
+    if(n && q) {
+        banco.usos.push({ nome: n, qtd: q, data: new Date().toISOString() });
+        salvar(); renderEstoque();
     }
 }
 
-function confirmarBaixaEstoque() {
-    var nomeSel = document.getElementById('sel-insumo-baixa').value;
-    var qtdUso = parseFloat(document.getElementById('qtd-uso-insumo').value);
-    if(nomeSel && qtdUso) {
-        dadosFazenda.baixas.push({ nome: nomeSel, quantidade: qtdUso, data: new Date().toISOString() });
-        salvarDados();
-        renderizarEstoque();
-        document.getElementById('qtd-uso-insumo').value = "";
-    }
-}
-
-function exportarExcel() {
-    var calculoSaldo = {};
-    for(var i=0; i<dadosFazenda.compras.length; i++) {
-        var c = dadosFazenda.compras[i];
-        calculoSaldo[c.nome] = (calculoSaldo[c.nome] || 0) + c.quantidade;
-    }
-    for(var j=0; j<dadosFazenda.baixas.length; j++) {
-        var b = dadosFazenda.baixas[j];
-        if(calculoSaldo[b.nome]) { calculoSaldo[b.nome] -= b.quantidade; }
-    }
+function exportarEstoqueExcel() {
+    var saldo = {};
+    banco.compras.forEach(function(i) { saldo[i.nome] = (saldo[i.nome] || 0) + i.qtd; });
+    banco.usos.forEach(function(u) { if(saldo[u.nome]) saldo[u.nome] -= u.qtd; });
     
-    var arrayDados = [];
-    for(var n in calculoSaldo) {
-        arrayDados.push({ "Produto/Insumo": n, "Saldo Atual": calculoSaldo[n] });
-    }
+    var dados = [];
+    for(var k in saldo) { dados.push({ "Insumo": k, "Saldo": saldo[k] }); }
     
-    var planilha = XLSX.utils.json_to_sheet(arrayDados);
-    var livro = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(livro, planilha, "Estoque");
-    XLSX.writeFile(livro, "estoque_fazenda_pro.xlsx");
+    var ws = XLSX.utils.json_to_sheet(dados);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Estoque");
+    XLSX.writeFile(wb, "estoque_fazenda.xlsx");
 }
 
-// FUNÇÃO: EQUIPE
-function registrarAtividadeEquipe() {
-    var nomeF = document.getElementById('input-func-nome').value;
-    var tarefaF = document.getElementById('input-func-tarefa').value;
-    if(nomeF !== "" && tarefaF !== "") {
-        dadosFazenda.equipe.push({ nome: nomeF, tarefa: tarefaF, data: new Date().toLocaleString() });
-        salvarDados();
-        renderizarEquipe();
-        document.getElementById('input-func-tarefa').value = "";
+function salvarTarefa() {
+    var n = document.getElementById('func-nome').value;
+    var t = document.getElementById('func-tarefa').value;
+    if(n && t) {
+        banco.tarefas.push({ n: n, t: t, d: new Date().toLocaleString() });
+        salvar(); renderTarefas();
     }
 }
 
-function renderizarEquipe() {
-    var containerEquipe = document.getElementById('lista-atividades-equipe');
-    containerEquipe.innerHTML = "";
-    var atividades = dadosFazenda.equipe.slice(-10).reverse();
-    
-    for(var i=0; i<atividades.length; i++) {
-        var a = atividades[i];
-        var cardAtividade = document.createElement('div');
-        cardAtividade.className = "card";
-        cardAtividade.innerHTML = "<b>"+a.nome+"</b><br><small>"+a.tarefa+"</small><br><span style='font-size:10px; color:gray'>"+a.data+"</span>";
-        containerEquipe.appendChild(cardAtividade);
-    }
+function renderTarefas() {
+    var c = document.getElementById('lista-tarefas');
+    c.innerHTML = "";
+    banco.tarefas.slice(-10).reverse().forEach(function(t) {
+        var d = document.createElement('div'); d.className = "card";
+        d.innerHTML = "<b>"+t.n+"</b><br>"+t.t+"<br><small style='color:gray'>"+t.d+"</small>";
+        c.appendChild(d);
+    });
 }
 
-function atualizarPainel() {
-    document.getElementById('info-dash').innerText = "Total de itens comprados: " + dadosFazenda.compras.length;
-}
-
-function gerarIconeApp() {
-  try {
-    var can=document.createElement('canvas'); can.width=512; can.height=512;
-    var ctx=can.getContext('2d');
-    ctx.fillStyle='#2a5c1f'; ctx.fillRect(0,0,512,512);
-    ctx.fillStyle='#fff'; ctx.font='bold 300px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🚜', 256, 256);
-    var linkIco=document.getElementById('pwa-icon');
-    if(linkIco) linkIco.href=can.toDataURL();
-  } catch(e) {}
+function renderDash() {
+    document.getElementById('info-dash').innerText = banco.compras.length + " entradas registradas.";
 }
 </script>
 </body>

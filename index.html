@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -9,7 +9,37 @@
 <meta name="theme-color" content="#2a5c1f">
 <title>Gestao da Fazenda</title>
 <link id="pwa-icon" rel="apple-touch-icon">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+function importarNota(){
+const fileInput=document.getElementById("xmlNota");
+const file=fileInput.files[0];
+if(!file){alert("Selecione o XML da nota");return;}
+const reader=new FileReader();
+reader.onload=function(e){
+const parser=new DOMParser();
+const xml=parser.parseFromString(e.target.result,"text/xml");
+const itens=xml.getElementsByTagName("det");
+for(let i=0;i<itens.length;i++){
+let nome=itens[i].getElementsByTagName("xProd")[0]?.textContent||"Produto";
+let qtd=itens[i].getElementsByTagName("qCom")[0]?.textContent||"0";
+let valor=itens[i].getElementsByTagName("vUnCom")[0]?.textContent||"0";
+adicionarCompraXML(nome,qtd,valor);
+}
+alert("Itens da nota importados");
+};
+reader.readAsText(file);
+}
+
+function adicionarCompraXML(produto,qtd,valor){
+const lista=document.getElementById("lista-compras");
+const div=document.createElement("div");
+div.style.padding="10px";
+div.style.borderBottom="1px solid #e0e5db";
+div.innerHTML="<b>"+produto+"</b><br>Qtd: "+qtd+" | Valor: R$ "+valor;
+lista.appendChild(div);
+}
+
+</script>
 <style>
 :root {
   --g: #2a5c1f; --g2: #3d8530; --gl: #e8f5e2;
@@ -201,7 +231,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, 'Helvet
           <span class="ct" id="compras-total">Total: R$ 0,00</span>
           <button class="btn bx bsm" onclick="expXlsx()">Excel</button>
         </div>
-        <div style="padding:0 16px" id="lista-compras"></div>
+        
+<div style="padding:10px 16px">
+<input type="file" id="xmlNota" accept=".xml">
+<button class="btn bx bsm" onclick="importarNota()">Importar NF‑e</button>
+</div>
+<div style="padding:0 16px" id="lista-compras"></div>
       </div>
     </div>
 
@@ -828,6 +863,37 @@ function gerarIcone(){
     if(s){s.classList.add('hide');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},600);}
   },1800);
 })();
+
+function importarNota(){
+const fileInput=document.getElementById("xmlNota");
+const file=fileInput.files[0];
+if(!file){alert("Selecione o XML da nota");return;}
+const reader=new FileReader();
+reader.onload=function(e){
+const parser=new DOMParser();
+const xml=parser.parseFromString(e.target.result,"text/xml");
+const itens=xml.getElementsByTagName("det");
+for(let i=0;i<itens.length;i++){
+let nome=itens[i].getElementsByTagName("xProd")[0]?.textContent||"Produto";
+let qtd=itens[i].getElementsByTagName("qCom")[0]?.textContent||"0";
+let valor=itens[i].getElementsByTagName("vUnCom")[0]?.textContent||"0";
+adicionarCompraXML(nome,qtd,valor);
+}
+alert("Itens da nota importados");
+};
+reader.readAsText(file);
+}
+
+function adicionarCompraXML(produto,qtd,valor){
+const lista=document.getElementById("lista-compras");
+const div=document.createElement("div");
+div.style.padding="10px";
+div.style.borderBottom="1px solid #e0e5db";
+div.innerHTML="<b>"+produto+"</b><br>Qtd: "+qtd+" | Valor: R$ "+valor;
+lista.appendChild(div);
+}
+
 </script>
 </body>
 </html>
+

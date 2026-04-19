@@ -169,6 +169,41 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, 'Helvet
 .ei { font-size: 38px; margin-bottom: 8px; }
 ::-webkit-scrollbar { display: none; }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script>
+async function lerFotoNota(){
+const fileInput=document.getElementById("fotoNota");
+const file=fileInput.files[0];
+if(!file){alert("Selecione a foto da nota");return;}
+
+alert("Lendo nota...");
+
+const resultado=await Tesseract.recognize(file,'por');
+const texto=resultado.data.text;
+processarTextoNota(texto);
+}
+
+function processarTextoNota(texto){
+const linhas=texto.split("\n");
+linhas.forEach(l=>{
+l=l.trim();
+if(l.length<5) return;
+
+const match=l.match(/\d+,\d{2}/);
+if(match){
+let valor=match[0];
+let nome=l.replace(valor,"").trim();
+if(nome.length>2){
+adicionarCompraXML(nome,1,valor);
+}
+}
+});
+alert("Itens detectados adicionados nas compras");
+}
+</script>
+
 </head>
 <body>
 
@@ -892,6 +927,13 @@ lista.appendChild(div);
 }
 
 </script>
+
+<div style="padding:15px">
+<h3>Importar nota por foto</h3>
+<input type="file" id="fotoNota" accept="image/*">
+<button onclick="lerFotoNota()">Ler foto da nota</button>
+</div>
+
 </body>
 </html>
 

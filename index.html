@@ -15,14 +15,40 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
 #app{height:100vh;display:flex;flex-direction:column}
-.topbar{background:var(--g);padding:var(--st) 18px 14px;flex-shrink:0}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--g);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;padding:40px 32px;transition:opacity .4s}
+#login-screen.hide{opacity:0;pointer-events:none}
+.login-logo{width:100px;height:100px;background:rgba(255,255,255,.13);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:42px;font-weight:800;color:#fff;letter-spacing:-2px}
+.login-title{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.4px}
+.login-sub{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:36px}
+.login-form{width:100%;max-width:340px}
+.login-input{width:100%;padding:14px 16px;font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:16px;font-weight:500;background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.25);border-radius:14px;outline:none;margin-bottom:12px;-webkit-appearance:none}
+.login-input::placeholder{color:rgba(255,255,255,.5)}
+.login-input:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.2)}
+.login-btn{width:100%;padding:15px;font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:16px;font-weight:700;background:#fff;color:var(--g);border:none;border-radius:14px;cursor:pointer;margin-bottom:12px}
+.login-btn:active{opacity:.85}
+.login-btn.secondary{background:transparent;color:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.3);font-size:14px;padding:12px}
+.login-err{color:#ffb3b3;font-size:13px;text-align:center;margin-bottom:10px;min-height:18px}
+.login-loading{color:rgba(255,255,255,.7);font-size:14px;text-align:center;margin-top:10px;display:none}
+
+/* SYNC INDICATOR */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;margin-left:8px;vertical-align:middle}
+.sync-dot.syncing{background:#fbbf24;animation:pulse 1s infinite}
+.sync-dot.offline{background:#f87171}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.topbar{background:var(--g);padding:var(--st) 18px 12px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between}
+.topbar-left{flex:1}
 .tb-title{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.4px}
 .tb-sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px}
+.logout-btn{background:rgba(255,255,255,.15);color:#fff;border:none;font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;flex-shrink:0}
+
 #pages{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .page{display:none;padding:16px 16px 32px}
 .page.active{display:block}
 .bnav{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--br);display:flex;padding-bottom:var(--sb);flex-shrink:0;z-index:20;overflow-x:auto}
-.nb{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 2px 5px;font-size:9px;font-weight:600;color:var(--tx3);background:none;border:none;cursor:pointer;gap:2px;white-space:nowrap}
+.nb{flex:1;min-width:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 2px 5px;font-size:9px;font-weight:600;color:var(--tx3);background:none;border:none;cursor:pointer;gap:2px;white-space:nowrap}
 .nb .ni{font-size:20px}
 .nb.active{color:var(--g)}
 .card{background:var(--card);border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.07);overflow:hidden;margin-bottom:14px}
@@ -59,7 +85,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 .lv{font-size:14px;font-weight:800}
 .lvs{font-size:12px;color:var(--tx2);margin-top:2px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.bp{background:var(--al);color:var(--a)}.ba{background:var(--bl);color:var(--b)}.bc{background:var(--gl);color:var(--g2)}.bb{background:var(--dl);color:var(--d)}.bok{background:var(--gl);color:var(--g2)}.bpx{background:var(--pl);color:var(--p)}
+.bp{background:var(--al);color:var(--a)}.ba{background:var(--bl);color:var(--b)}.bc{background:var(--gl);color:var(--g2)}.bb{background:var(--dl);color:var(--d)}.bok{background:var(--gl);color:var(--g2)}
 .alrt{background:var(--al);border:1.5px solid #f5c518;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:600;color:#7a5800;display:flex;align-items:flex-start;gap:8px}
 .tg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:12px}
 .tgb{flex:1;padding:8px;font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:13px;font-weight:700;background:none;border:none;border-radius:8px;cursor:pointer;color:var(--tx2)}
@@ -102,8 +128,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 .apib input{width:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:13px;font-weight:600;padding:10px 12px;border:1.5px solid #f5c518;border-radius:10px;background:#fff;color:var(--tx);outline:none}
 .apih{font-size:11px;color:#7a5800;margin-top:6px;line-height:1.5}
 .xml-info{background:var(--gl);border:1.5px solid var(--g2);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--g);line-height:1.7}
-.backup-box{background:var(--pl);border:1.5px solid var(--p);border-radius:12px;padding:14px;margin-bottom:14px}
-.backup-box label{font-size:11px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px}
 #splash{position:fixed;inset:0;z-index:9999;background:var(--g);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s,transform .5s}
 #splash.hide{opacity:0;pointer-events:none;transform:scale(1.04)}
 .spi{width:116px;height:116px;background:rgba(255,255,255,.13);border-radius:28px;display:flex;align-items:center;justify-content:center;margin-bottom:26px;animation:spop .6s cubic-bezier(.34,1.56,.64,1) .1s both}
@@ -122,25 +146,39 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 </head>
 <body>
 
+<!-- SPLASH -->
 <div id="splash">
-  <div class="spi">
-    <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
-      <text x="34" y="50" text-anchor="middle" font-family="-apple-system,Arial,sans-serif" font-weight="800" font-size="36" fill="white" letter-spacing="-2">FT</text>
-    </svg>
-  </div>
+  <div class="spi"><svg width="68" height="68" viewBox="0 0 68 68" fill="none"><text x="34" y="50" text-anchor="middle" font-family="-apple-system,Arial,sans-serif" font-weight="800" font-size="36" fill="white" letter-spacing="-2">FT</text></svg></div>
   <div class="spt">Felipe Lindo</div>
   <div class="sps">Graos e Pecuaria</div>
   <div class="spd"><div class="spdt"></div><div class="spdt"></div><div class="spdt"></div></div>
 </div>
 
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">FT</div>
+  <div class="login-title">Felipe Lindo</div>
+  <div class="login-sub">Faca login para continuar</div>
+  <div class="login-form">
+    <div class="login-err" id="login-err"></div>
+    <input class="login-input" type="email" id="login-email" placeholder="Email" autocomplete="email" inputmode="email">
+    <input class="login-input" type="password" id="login-pass" placeholder="Senha" autocomplete="current-password">
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+    <button class="login-btn secondary" onclick="criarConta()">Criar conta</button>
+    <div class="login-loading" id="login-loading">Aguarde...</div>
+  </div>
+</div>
+
 <div id="app">
   <div class="topbar">
-    <div class="tb-title" id="tt">Felipe Lindo</div>
-    <div class="tb-sub" id="ts">Painel geral</div>
+    <div class="topbar-left">
+      <div class="tb-title" id="tt">Felipe Lindo <span class="sync-dot" id="sync-dot"></span></div>
+      <div class="tb-sub" id="ts">Painel geral</div>
+    </div>
+    <button class="logout-btn" onclick="fazerLogout()">Sair</button>
   </div>
 
   <div id="pages">
-
     <!-- DASHBOARD -->
     <div id="pg-dash" class="page active">
       <div class="sg" id="dash-grid"></div>
@@ -190,7 +228,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 
     <!-- PECAS E MAO DE OBRA -->
     <div id="pg-pecas" class="page">
-      <div class="sec">Pecas de reposicao e Mao de obra</div>
+      <div class="sec">Pecas e Mao de obra</div>
       <div class="card">
         <div class="ch"><span class="ct" id="pecas-total">Total: R$ 0,00</span><button class="btn bx bsm" onclick="expXlsx('pecas')">Excel</button></div>
         <div style="padding:0 16px" id="lista-pecas"></div>
@@ -216,20 +254,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
         </div>
         <button class="btn bx" onclick="expRelatorio()">Exportar tudo em Excel</button>
       </div></div>
-
-      <!-- BACKUP -->
-      <div class="sec">Backup dos dados</div>
-      <div class="card"><div class="cb">
-        <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Salve um backup completo dos seus dados. Guarde o arquivo no iCloud para nao perder nada.</div>
-        <button class="btn bp2" style="margin-bottom:10px" onclick="exportarBackup()">Salvar backup completo</button>
-        <div class="nfd" style="margin-top:4px">
-          <input type="file" accept=".json" id="backup-file" onchange="importarBackup(this)">
-          <div class="nfd-i">📂</div>
-          <div class="nfd-t">Restaurar backup</div>
-          <div class="nfd-s">Selecione o arquivo .json do backup</div>
-        </div>
-      </div></div>
-
       <div class="sec">Gastos por categoria</div>
       <div class="card"><div style="padding:0 16px" id="rel-cat"></div></div>
       <div class="sec">Por fornecedor</div>
@@ -239,7 +263,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
       <div class="sec">Produtividade por funcionario</div>
       <div class="card"><div style="padding:0 16px" id="rel-func"></div></div>
     </div>
-
   </div>
 
   <nav class="bnav">
@@ -249,7 +272,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <button class="nb" onclick="navTo('tarefas',this,'Tarefas','Funcionarios')"><span class="ni">✅</span>Tarefas</button>
     <button class="nb" onclick="navTo('pecas',this,'Pecas e M.O.','Maquinas e servicos')"><span class="ni">🔧</span>Pecas/MO</button>
     <button class="nb" onclick="navTo('pecuaria',this,'Pecuaria','Rebanho')"><span class="ni">🐄</span>Pecuaria</button>
-    <button class="nb" onclick="navTo('rel',this,'Relatorios','Analise e backup')"><span class="ni">📈</span>Relatorios</button>
+    <button class="nb" onclick="navTo('rel',this,'Relatorios','Analise')"><span class="ni">📈</span>Relatorios</button>
   </nav>
 </div>
 
@@ -286,7 +309,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
   </div>
 </div>
 
-<!-- MODAL IMPORTAR NF -->
+<!-- MODAL NF -->
 <div class="mo" id="m-nf">
   <div class="ms">
     <div class="mh" onclick="fechaM('m-nf')"></div>
@@ -297,32 +320,15 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     </div>
     <div id="panel-xml">
       <div class="xml-info"><strong>Como obter o XML:</strong><br>1. Peca ao fornecedor o arquivo XML<br>2. Ou baixe no portal da SEFAZ<br>3. Selecione o arquivo .xml abaixo</div>
-      <div class="nfd">
-        <input type="file" accept=".xml,text/xml,application/xml" id="xml-file" onchange="lerXMLNFe(this)">
-        <div class="nfd-i">📋</div>
-        <div class="nfd-t">Selecionar arquivo XML da NF-e</div>
-        <div class="nfd-s">Toque para escolher o arquivo .xml</div>
-      </div>
+      <div class="nfd"><input type="file" accept=".xml,text/xml" id="xml-file" onchange="lerXMLNFe(this)"><div class="nfd-i">📋</div><div class="nfd-t">Selecionar XML da NF-e</div><div class="nfd-s">Toque para escolher o arquivo</div></div>
     </div>
     <div id="panel-foto" style="display:none">
-      <div class="apib">
-        <label>Chave API Google Gemini (gratuita)</label>
-        <input type="password" id="api-key" placeholder="AIza..." autocomplete="off">
-        <div class="apih">Gratis em <strong>aistudio.google.com</strong> - Get API Key. Salva so no seu iPhone.</div>
-      </div>
-      <div class="nfd">
-        <input type="file" accept="image/*" capture="environment" id="nf-file" onchange="previewNF(this)">
-        <div class="nfd-i">📷</div>
-        <div class="nfd-t">Fotografar ou escolher nota fiscal</div>
-        <div class="nfd-s">Toque para abrir a camera</div>
-      </div>
+      <div class="apib"><label>Chave API Google Gemini</label><input type="password" id="api-key" placeholder="AIza..." autocomplete="off"><div class="apih">Gratis em aistudio.google.com - Get API Key</div></div>
+      <div class="nfd"><input type="file" accept="image/*" capture="environment" id="nf-file" onchange="previewNF(this)"><div class="nfd-i">📷</div><div class="nfd-t">Fotografar nota fiscal</div><div class="nfd-s">Toque para abrir a camera</div></div>
       <img id="nf-prev" class="nfp" alt="Preview">
     </div>
     <div class="nfst" id="nf-stat"></div>
-    <div class="nfr" id="nf-res">
-      <div class="nfrt">Dados encontrados</div>
-      <div id="nf-items"></div>
-    </div>
+    <div class="nfr" id="nf-res"><div class="nfrt">Dados encontrados</div><div id="nf-items"></div></div>
     <div class="nfbt">
       <button class="btn bgh" style="flex:1" onclick="fechaM('m-nf')">Cancelar</button>
       <button class="btn bg" style="flex:2;display:none" id="nf-confirmar" onclick="confirmarNF()">Adicionar compras</button>
@@ -330,7 +336,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
   </div>
 </div>
 
-<!-- MODAL NOVA/EDITAR TAREFA -->
+<!-- MODAL TAREFA -->
 <div class="mo" id="m-tarefa">
   <div class="ms">
     <div class="mh" onclick="fechaM('m-tarefa')"></div>
@@ -361,29 +367,29 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <div class="mtit">Funcionarios</div>
     <div class="fg"><label class="fl">Nome</label><input type="text" class="fi" id="fn-nome" placeholder="Nome completo"></div>
     <div class="fg"><label class="fl">Funcao</label><input type="text" class="fi" id="fn-func" placeholder="Ex: Tratorista, Peao"></div>
-    <button class="btn bg" style="margin-bottom:22px" onclick="salvarFunc()">Cadastrar funcionario</button>
+    <button class="btn bg" style="margin-bottom:22px" onclick="salvarFunc()">Cadastrar</button>
     <div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Cadastrados</div>
     <div id="lista-funcs"></div>
   </div>
 </div>
 
-<!-- MODAL PECA / MAO DE OBRA -->
+<!-- MODAL PECA -->
 <div class="mo" id="m-peca">
   <div class="ms">
     <div class="mh" onclick="fechaM('m-peca')"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-      <div class="mtit" style="margin:0">Nova peca / Mao de obra</div>
+      <div class="mtit" style="margin:0">Nova peca / M.O.</div>
       <button onclick="fechaM('m-peca');abreM('m-nf-peca')" style="background:var(--pl);color:var(--p);border:1.5px solid var(--p);font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer">Importar NF</button>
     </div>
     <div class="fr" style="margin-bottom:10px">
       <div class="fg" style="margin:0"><label class="fl">Data</label><input type="date" class="fi" id="p-data"></div>
       <div class="fg" style="margin:0"><label class="fl">Tipo</label><div class="sw"><select class="fsel" id="p-tipo"><option>Peca de reposicao</option><option>Mao de obra terceirizada</option><option>Servico externo</option><option>Manutencao preventiva</option><option>Outros</option></select></div></div>
     </div>
-    <div class="fg"><label class="fl">Descricao</label><input type="text" class="fi" id="p-desc" placeholder="Ex: Filtro de oleo, Conserto hidraulico..."></div>
-    <div class="fg"><label class="fl">Maquina / Equipamento</label><input type="text" class="fi" id="p-maq" placeholder="Ex: Trator John Deere, Colheitadeira..."></div>
+    <div class="fg"><label class="fl">Descricao</label><input type="text" class="fi" id="p-desc" placeholder="Ex: Filtro de oleo..."></div>
+    <div class="fg"><label class="fl">Maquina / Equipamento</label><input type="text" class="fi" id="p-maq" placeholder="Ex: Trator John Deere..."></div>
     <div class="fr" style="margin-bottom:10px">
       <div class="fg" style="margin:0"><label class="fl">Valor R$</label><input type="number" class="fi" id="p-val" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>
-      <div class="fg" style="margin:0"><label class="fl">Fornecedor / Prestador</label><input type="text" class="fi" id="p-forn" placeholder="Nome"></div>
+      <div class="fg" style="margin:0"><label class="fl">Fornecedor</label><input type="text" class="fi" id="p-forn" placeholder="Nome"></div>
     </div>
     <div class="fg"><label class="fl">Obs</label><textarea class="fta" id="p-obs" placeholder="Opcional..."></textarea></div>
     <button class="btn bp2" onclick="salvarPeca()">Registrar</button>
@@ -400,36 +406,19 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
       <button class="nf-tab" id="tab-foto-peca" onclick="setTabNFPeca('foto')">Foto com IA</button>
     </div>
     <div id="panel-xml-peca">
-      <div class="xml-info"><strong>Como obter o XML:</strong><br>1. Peca ao fornecedor o arquivo XML<br>2. Ou baixe no portal da SEFAZ<br>3. Selecione o arquivo .xml abaixo</div>
-      <div class="nfd">
-        <input type="file" accept=".xml,text/xml,application/xml" id="xml-file-peca" onchange="lerXMLNFePeca(this)">
-        <div class="nfd-i">📋</div>
-        <div class="nfd-t">Selecionar arquivo XML da NF-e</div>
-        <div class="nfd-s">Toque para escolher o arquivo .xml</div>
-      </div>
+      <div class="xml-info"><strong>Como obter o XML:</strong><br>1. Peca ao fornecedor o arquivo XML<br>2. Selecione abaixo</div>
+      <div class="nfd"><input type="file" accept=".xml,text/xml" id="xml-file-peca" onchange="lerXMLNFePeca(this)"><div class="nfd-i">📋</div><div class="nfd-t">Selecionar XML da NF-e</div><div class="nfd-s">Toque para escolher o arquivo</div></div>
     </div>
     <div id="panel-foto-peca" style="display:none">
-      <div class="apib">
-        <label>Chave API Google Gemini (gratuita)</label>
-        <input type="password" id="api-key-peca" placeholder="AIza..." autocomplete="off">
-        <div class="apih">Gratis em <strong>aistudio.google.com</strong> - Get API Key. Salva so no seu iPhone.</div>
-      </div>
-      <div class="nfd">
-        <input type="file" accept="image/*" capture="environment" id="nf-file-peca" onchange="previewNFPeca(this)">
-        <div class="nfd-i">📷</div>
-        <div class="nfd-t">Fotografar ou escolher nota fiscal</div>
-        <div class="nfd-s">Toque para abrir a camera</div>
-      </div>
+      <div class="apib"><label>Chave API Google Gemini</label><input type="password" id="api-key-peca" placeholder="AIza..." autocomplete="off"><div class="apih">Gratis em aistudio.google.com</div></div>
+      <div class="nfd"><input type="file" accept="image/*" capture="environment" id="nf-file-peca" onchange="previewNFPeca(this)"><div class="nfd-i">📷</div><div class="nfd-t">Fotografar nota fiscal</div><div class="nfd-s">Toque para abrir a camera</div></div>
       <img id="nf-prev-peca" class="nfp" alt="Preview">
     </div>
     <div class="nfst" id="nf-stat-peca"></div>
-    <div class="nfr" id="nf-res-peca">
-      <div class="nfrt">Dados encontrados</div>
-      <div id="nf-items-peca"></div>
-    </div>
+    <div class="nfr" id="nf-res-peca"><div class="nfrt">Dados encontrados</div><div id="nf-items-peca"></div></div>
     <div class="nfbt">
       <button class="btn bgh" style="flex:1" onclick="fechaM('m-nf-peca')">Cancelar</button>
-      <button class="btn bp2" style="flex:2;display:none" id="nf-confirmar-peca" onclick="confirmarNFPeca()">Adicionar pecas/MO</button>
+      <button class="btn bp2" style="flex:2;display:none" id="nf-confirmar-peca" onclick="confirmarNFPeca()">Adicionar itens</button>
     </div>
   </div>
 </div>
@@ -441,31 +430,18 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <div class="mtit">Registro de Pecuaria</div>
     <div class="fr" style="margin-bottom:10px">
       <div class="fg" style="margin:0"><label class="fl">Data</label><input type="date" class="fi" id="pec-data"></div>
-      <div class="fg" style="margin:0"><label class="fl">Tipo de registro</label><div class="sw"><select class="fsel" id="pec-tipo" onchange="mudaTipoPec()">
-        <option value="nascimento">Nascimento de bezerro</option>
-        <option value="contagem">Contagem do rebanho</option>
-        <option value="morte">Morte de animal</option>
-        <option value="venda">Venda de animal</option>
-        <option value="compra">Compra de animal</option>
-        <option value="vacina">Vacinacao</option>
-        <option value="pesagem">Pesagem</option>
-        <option value="outro">Outro</option>
-      </select></div></div>
+      <div class="fg" style="margin:0"><label class="fl">Tipo</label><div class="sw"><select class="fsel" id="pec-tipo" onchange="mudaTipoPec()"><option value="nascimento">Nascimento de bezerro</option><option value="contagem">Contagem do rebanho</option><option value="morte">Morte de animal</option><option value="venda">Venda de animal</option><option value="compra">Compra de animal</option><option value="vacina">Vacinacao</option><option value="pesagem">Pesagem</option><option value="outro">Outro</option></select></div></div>
     </div>
-
-    <!-- NASCIMENTO -->
     <div id="pec-nascimento">
       <div class="fr" style="margin-bottom:10px">
-        <div class="fg" style="margin:0"><label class="fl">Sexo do bezerro</label><div class="sw"><select class="fsel" id="pec-sexo"><option>Macho</option><option>Femea</option></select></div></div>
-        <div class="fg" style="margin:0"><label class="fl">Identificacao (brinco/nome)</label><input type="text" class="fi" id="pec-id-animal" placeholder="Ex: 001, Mimosa..."></div>
+        <div class="fg" style="margin:0"><label class="fl">Sexo</label><div class="sw"><select class="fsel" id="pec-sexo"><option>Macho</option><option>Femea</option></select></div></div>
+        <div class="fg" style="margin:0"><label class="fl">Identificacao</label><input type="text" class="fi" id="pec-id-animal" placeholder="Ex: 001, Mimosa..."></div>
       </div>
       <div class="fr" style="margin-bottom:10px">
         <div class="fg" style="margin:0"><label class="fl">Raca</label><input type="text" class="fi" id="pec-raca" placeholder="Ex: Nelore, Angus..."></div>
-        <div class="fg" style="margin:0"><label class="fl">Mae (brinco/nome)</label><input type="text" class="fi" id="pec-mae" placeholder="Opcional"></div>
+        <div class="fg" style="margin:0"><label class="fl">Mae</label><input type="text" class="fi" id="pec-mae" placeholder="Opcional"></div>
       </div>
     </div>
-
-    <!-- CONTAGEM -->
     <div id="pec-contagem" style="display:none">
       <div class="fr3" style="margin-bottom:10px">
         <div class="fg" style="margin:0"><label class="fl">Vacas</label><input type="number" class="fi" id="pec-vacas" placeholder="0" min="0" inputmode="numeric"></div>
@@ -473,64 +449,174 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
         <div class="fg" style="margin:0"><label class="fl">Touros</label><input type="number" class="fi" id="pec-touros" placeholder="0" min="0" inputmode="numeric"></div>
       </div>
     </div>
-
-    <!-- GENERICO (morte, venda, compra, vacina, pesagem, outro) -->
     <div id="pec-generico" style="display:none">
       <div class="fr" style="margin-bottom:10px">
-        <div class="fg" style="margin:0"><label class="fl">Identificacao / Lote</label><input type="text" class="fi" id="pec-id2" placeholder="Brinco, lote, nome..."></div>
+        <div class="fg" style="margin:0"><label class="fl">Identificacao / Lote</label><input type="text" class="fi" id="pec-id2" placeholder="Brinco, lote..."></div>
         <div class="fg" style="margin:0"><label class="fl">Quantidade</label><input type="number" class="fi" id="pec-qtd2" placeholder="1" min="0" inputmode="decimal"></div>
       </div>
       <div class="fg"><label class="fl">Valor R$ (se houver)</label><input type="number" class="fi" id="pec-val2" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>
     </div>
-
     <div class="fg"><label class="fl">Observacoes</label><textarea class="fta" id="pec-obs" placeholder="Detalhes adicionais..."></textarea></div>
     <button class="btn bb2" onclick="salvarPecuaria()">Salvar registro</button>
   </div>
 </div>
 
-<script>
-var DB='fazenda_v4';
-var db={compras:[],usos:[],tarefas:[],funcs:[],pecas:[],pecuaria:[]};
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-function salvar(){localStorage.setItem(DB,JSON.stringify(db));}
+const firebaseConfig = {
+  apiKey: "AIzaSyCyy42piv40UerRxGa-LYQuPKWeE8aovjs",
+  authDomain: "fazenda-felipe.firebaseapp.com",
+  projectId: "fazenda-felipe",
+  storageBucket: "fazenda-felipe.firebasestorage.app",
+  messagingSenderId: "956769614970",
+  appId: "1:956769614970:web:187d3e51be387b0b95cfc3"
+};
 
-function carregar(){
-  var d=localStorage.getItem(DB);
-  if(d){try{db=JSON.parse(d);}catch(e){}}
-  if(!db.pecas)db.pecas=[];
-  if(!db.pecuaria)db.pecuaria=[];
-  if(!db.funcs||!db.funcs.length){
-    db.funcs=[{id:1,nome:'Joao Silva',func:'Tratorista'},{id:2,nome:'Maria Costa',func:'Peoa'}];
-    var h=hoje(),m=h.slice(0,7);
-    db.compras=[
-      {id:1,data:m+'-03',nome:'Herbicida Roundup',cat:'Defensivo',qtd:20,un:'L',val:38.5,forn:'AgroShop',min:5,obs:'',safra:'2024/2025',cultura:'Soja'},
-      {id:2,data:m+'-06',nome:'Racao Bovina',cat:'Racao',qtd:200,un:'kg',val:2.1,forn:'NutriPec',min:50,obs:'',safra:'2024/2025',cultura:'Bovinos'},
-    ];
-    db.usos=[{id:1,ins:'Herbicida Roundup',qtd:12,data:m+'-07'},{id:2,ins:'Racao Bovina',qtd:80,data:m+'-09'}];
-    db.tarefas=[
-      {id:1,data:m+'-01',fid:1,fnome:'Joao Silva',setor:'Lavoura',desc:'Preparar solo talhao 4',stat:'Concluida',obs:'Finalizado.'},
-      {id:2,data:h,fid:2,fnome:'Maria Costa',setor:'Curral',desc:'Vacinar bezerros',stat:'Pendente',obs:''},
-    ];
-    db.pecas=[
-      {id:1,data:m+'-05',tipo:'Peca de reposicao',desc:'Filtro de oleo',maq:'Trator John Deere',val:85,forn:'Agro Pecas',obs:''},
-    ];
-    db.pecuaria=[
-      {id:1,data:m+'-02',tipo:'nascimento',sexo:'Femea',idAnimal:'001',raca:'Nelore',mae:'Mimosa',obs:'Parto normal'},
-      {id:2,data:m+'-10',tipo:'contagem',vacas:45,bezerros:12,touros:2,obs:'Contagem mensal'},
-    ];
-    salvar();
+const fireApp = initializeApp(firebaseConfig);
+const auth = getAuth(fireApp);
+const db = getFirestore(fireApp);
+
+// Listeners para sync em tempo real
+var unsubscribers = [];
+
+window.fireAuth = auth;
+window.fireDB = db;
+window.fireFns = { collection, doc, setDoc, deleteDoc, onSnapshot, query, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged };
+
+// AUTH STATE
+onAuthStateChanged(auth, function(user) {
+  if (user) {
+    window.currentUser = user;
+    document.getElementById('login-screen').classList.add('hide');
+    iniciarApp(user.uid);
+  } else {
+    window.currentUser = null;
+    document.getElementById('login-screen').classList.remove('hide');
+    pararSync();
   }
+});
+
+function iniciarApp(uid) {
+  setSyncStatus('syncing');
+  pararSync();
+
+  var colecoes = ['compras','usos','tarefas','funcs','pecas','pecuaria'];
+  var carregados = 0;
+
+  colecoes.forEach(function(col) {
+    var q = collection(db, 'usuarios', uid, col);
+    var unsub = onSnapshot(q, function(snap) {
+      window.appDB[col] = [];
+      snap.forEach(function(d) { window.appDB[col].push(d.data()); });
+      carregados++;
+      if (carregados >= colecoes.length) {
+        setSyncStatus('ok');
+        renderPag(window.pagAtual || 'dash');
+        renderDash();
+        populaSelIns();
+        populaSelFunc();
+      }
+    }, function(err) {
+      setSyncStatus('offline');
+    });
+    unsubscribers.push(unsub);
+  });
 }
 
-function nid(){return Date.now()+Math.random();}
+function pararSync() {
+  unsubscribers.forEach(function(u) { u(); });
+  unsubscribers = [];
+}
+
+window.salvarFirestore = async function(colecao, item) {
+  if (!window.currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    var uid = window.currentUser.uid;
+    var ref = doc(db, 'usuarios', uid, colecao, String(item.id));
+    await setDoc(ref, item);
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('offline');
+    console.error(e);
+  }
+};
+
+window.deletarFirestore = async function(colecao, id) {
+  if (!window.currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    var uid = window.currentUser.uid;
+    var ref = doc(db, 'usuarios', uid, colecao, String(id));
+    await deleteDoc(ref);
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('offline');
+  }
+};
+
+function setSyncStatus(status) {
+  var dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (status === 'syncing' ? ' syncing' : status === 'offline' ? ' offline' : '');
+}
+window.setSyncStatus = setSyncStatus;
+
+// LOGIN FUNCTIONS
+window.fazerLogin = async function() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { document.getElementById('login-err').textContent = 'Preencha email e senha.'; return; }
+  document.getElementById('login-loading').style.display = 'block';
+  document.getElementById('login-err').textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    document.getElementById('login-loading').style.display = 'none';
+    var msg = e.code === 'auth/invalid-credential' ? 'Email ou senha incorretos.' : e.code === 'auth/too-many-requests' ? 'Muitas tentativas. Tente mais tarde.' : 'Erro: ' + e.message;
+    document.getElementById('login-err').textContent = msg;
+  }
+};
+
+window.criarConta = async function() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { document.getElementById('login-err').textContent = 'Preencha email e senha.'; return; }
+  if (pass.length < 6) { document.getElementById('login-err').textContent = 'A senha precisa ter ao menos 6 caracteres.'; return; }
+  document.getElementById('login-loading').style.display = 'block';
+  document.getElementById('login-err').textContent = '';
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    document.getElementById('login-loading').style.display = 'none';
+    var msg = e.code === 'auth/email-already-in-use' ? 'Este email ja esta em uso.' : 'Erro: ' + e.message;
+    document.getElementById('login-err').textContent = msg;
+  }
+};
+
+window.fazerLogout = async function() {
+  if (confirm('Deseja sair?')) { await signOut(auth); }
+};
+</script>
+
+<script>
+// ══ BANCO LOCAL (sincronizado pelo Firebase) ══
+window.appDB = {compras:[],usos:[],tarefas:[],funcs:[],pecas:[],pecuaria:[]};
+window.pagAtual = 'dash';
+
+function nid(){return Date.now()+Math.floor(Math.random()*10000);}
 function hoje(){return new Date().toISOString().split('T')[0];}
 function fmtR(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtD(d){return d?d.split('-').reverse().join('/'):'--';}
 
 function estoque(){
   var m={};
-  db.compras.forEach(function(c){if(!m[c.nome])m[c.nome]={nome:c.nome,cat:c.cat,un:c.un,min:Number(c.min)||0,saldo:0};m[c.nome].saldo+=Number(c.qtd);});
-  db.usos.forEach(function(u){if(m[u.ins])m[u.ins].saldo-=Number(u.qtd);});
+  appDB.compras.forEach(function(c){if(!m[c.nome])m[c.nome]={nome:c.nome,cat:c.cat,un:c.un,min:Number(c.min)||0,saldo:0};m[c.nome].saldo+=Number(c.qtd);});
+  appDB.usos.forEach(function(u){if(m[u.ins])m[u.ins].saldo-=Number(u.qtd);});
   return Object.values(m);
 }
 
@@ -540,12 +626,11 @@ function navTo(id,btn,title,sub){
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
   document.getElementById('pg-'+id).classList.add('active');
   btn.classList.add('active');
-  document.getElementById('tt').textContent=title;
+  document.getElementById('tt').innerHTML='Felipe Lindo <span class="sync-dot" id="sync-dot"></span>';
   document.getElementById('ts').textContent=sub;
   document.getElementById('pages').scrollTop=0;
-  pag=id;
-  var showFab=['dash','compras','tarefas','pecas','pecuaria'].indexOf(id)>=0;
-  document.getElementById('fab').style.display=showFab?'flex':'none';
+  pag=id; window.pagAtual=id;
+  document.getElementById('fab').style.display=['dash','compras','tarefas','pecas','pecuaria'].indexOf(id)>=0?'flex':'none';
   renderPag(id);
 }
 function renderPag(id){
@@ -560,7 +645,6 @@ function renderPag(id){
 function abreM(id){document.getElementById(id).classList.add('open');}
 function fechaM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.mo').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)fechaM(m.id);});});
-
 function abrirFab(){
   if(pag==='dash'||pag==='compras')abreM('m-compra');
   else if(pag==='tarefas')abrirNovaTarefa();
@@ -571,14 +655,14 @@ function abrirFab(){
 // ══ DASHBOARD ══
 function renderDash(){
   var mes=new Date().toISOString().slice(0,7);
-  var cm=db.compras.filter(function(c){return c.data.startsWith(mes);});
+  var cm=appDB.compras.filter(function(c){return c.data&&c.data.startsWith(mes);});
   var totC=cm.reduce(function(s,c){return s+c.qtd*c.val;},0);
-  var totP=db.pecas.filter(function(p){return p.data.startsWith(mes);}).reduce(function(s,p){return s+p.val;},0);
+  var totP=appDB.pecas.filter(function(p){return p.data&&p.data.startsWith(mes);}).reduce(function(s,p){return s+p.val;},0);
   var est=estoque(),baixos=est.filter(function(e){return e.min>0&&e.saldo<=e.min;});
-  var pend=db.tarefas.filter(function(t){return t.stat==='Pendente';}).length;
-  var ultContagem=db.pecuaria.filter(function(p){return p.tipo==='contagem';}).slice(-1)[0];
+  var pend=appDB.tarefas.filter(function(t){return t.stat==='Pendente';}).length;
+  var ultContagem=appDB.pecuaria.filter(function(p){return p.tipo==='contagem';}).slice(-1)[0];
   var totalRebanho=ultContagem?(Number(ultContagem.vacas||0)+Number(ultContagem.bezerros||0)+Number(ultContagem.touros||0)):0;
-  var nascMes=db.pecuaria.filter(function(p){return p.tipo==='nascimento'&&p.data.startsWith(mes);}).length;
+  var nascMes=appDB.pecuaria.filter(function(p){return p.tipo==='nascimento'&&p.data&&p.data.startsWith(mes);}).length;
 
   document.getElementById('dash-grid').innerHTML=
     '<div class="st t"><div class="sl">Gasto insumos mes</div><div class="sv" style="font-size:15px">'+fmtR(totC)+'</div><div class="ss">'+cm.length+' compra(s)</div></div>'+
@@ -592,35 +676,25 @@ function renderDash(){
     ?baixos.map(function(e){return '<div class="alrt">⚠️ <span><strong>'+e.nome+'</strong> — saldo: '+e.saldo.toFixed(2)+' '+e.un+' (min: '+e.min+')</span></div>';}).join('')
     :'<div class="empty" style="padding:14px"><div class="ei">✅</div>Estoque OK</div>';
 
-  var tp=db.tarefas.filter(function(t){return t.stat==='Pendente'||t.data===hoje();}).slice(0,5);
+  var tp=appDB.tarefas.filter(function(t){return t.stat==='Pendente';}).slice(0,5);
   document.getElementById('dash-tarefas').innerHTML=tp.length
-    ?tp.map(function(t){var bc=t.stat==='Pendente'?'bp':t.stat==='Em andamento'?'ba':'bc';return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - '+fmtD(t.data)+'</div></div><span class="badge '+bc+'">'+t.stat+'</span></div>';}).join('')
+    ?tp.map(function(t){var bc=t.stat==='Pendente'?'bp':'ba';return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+'</div></div><span class="badge '+bc+'">'+t.stat+'</span></div>';}).join('')
     :'<div class="empty" style="padding:14px"><div class="ei">🎉</div>Sem pendencias</div>';
 }
 
 // ══ COMPRAS ══
 function salvarCompra(){
-  var data=document.getElementById('c-data').value;
-  var nome=document.getElementById('c-nome').value.trim();
-  var cat=document.getElementById('c-cat').value;
-  var qtd=parseFloat(document.getElementById('c-qtd').value);
-  var un=document.getElementById('c-un').value;
-  var val=parseFloat(document.getElementById('c-val').value);
-  var forn=document.getElementById('c-forn').value.trim();
-  var min=parseFloat(document.getElementById('c-min').value)||0;
-  var obs=document.getElementById('c-obs').value.trim();
-  var safra=document.getElementById('c-safra').value;
-  var cultura=document.getElementById('c-cultura').value;
+  var data=document.getElementById('c-data').value,nome=document.getElementById('c-nome').value.trim(),cat=document.getElementById('c-cat').value,qtd=parseFloat(document.getElementById('c-qtd').value),un=document.getElementById('c-un').value,val=parseFloat(document.getElementById('c-val').value),forn=document.getElementById('c-forn').value.trim(),min=parseFloat(document.getElementById('c-min').value)||0,obs=document.getElementById('c-obs').value.trim(),safra=document.getElementById('c-safra').value,cultura=document.getElementById('c-cultura').value;
   if(!data||!nome||!cat||isNaN(qtd)||isNaN(val)){alert('Preencha: data, insumo, categoria, quantidade e valor.');return;}
-  db.compras.push({id:nid(),data:data,nome:nome,cat:cat,qtd:qtd,un:un,val:val,forn:forn,min:min,obs:obs,safra:safra,cultura:cultura});
-  salvar();
+  var item={id:nid(),data:data,nome:nome,cat:cat,qtd:qtd,un:un,val:val,forn:forn,min:min,obs:obs,safra:safra,cultura:cultura};
+  salvarFirestore('compras',item);
   ['c-nome','c-forn','c-obs'].forEach(function(i){document.getElementById(i).value='';});
   ['c-qtd','c-val','c-min'].forEach(function(i){document.getElementById(i).value='';});
   document.getElementById('c-safra').value='';document.getElementById('c-cultura').value='';
-  fechaM('m-compra');renderCompras();renderDash();
+  fechaM('m-compra');
 }
 function renderCompras(){
-  var lista=db.compras.slice().sort(function(a,b){return b.data.localeCompare(a.data);});
+  var lista=appDB.compras.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
   var tot=lista.reduce(function(s,c){return s+c.qtd*c.val;},0);
   document.getElementById('compras-total').textContent='Total: '+fmtR(tot);
   document.getElementById('lista-compras').innerHTML=lista.length?lista.map(function(c){
@@ -630,7 +704,7 @@ function renderCompras(){
       '<button class="bdel" style="margin-top:5px" onclick="delCompra('+c.id+')">Excluir</button></div></div>';
   }).join(''):'<div class="empty"><div class="ei">🛒</div>Nenhuma compra</div>';
 }
-function delCompra(id){if(!confirm('Excluir?'))return;db.compras=db.compras.filter(function(c){return c.id!==id;});salvar();renderCompras();renderEst();renderDash();}
+function delCompra(id){if(!confirm('Excluir?'))return;deletarFirestore('compras',id);}
 
 // ══ ESTOQUE ══
 function populaSelIns(){
@@ -645,59 +719,48 @@ function renderEst(){
 function registrarUso(){
   var ins=document.getElementById('u-ins').value,qtd=parseFloat(document.getElementById('u-qtd').value),data=document.getElementById('u-data').value;
   if(!ins||isNaN(qtd)||qtd<=0||!data){alert('Preencha todos os campos.');return;}
-  db.usos.push({id:nid(),ins:ins,qtd:qtd,data:data});
-  salvar();document.getElementById('u-qtd').value='';renderEst();populaSelIns();renderDash();
+  salvarFirestore('usos',{id:nid(),ins:ins,qtd:qtd,data:data});
+  document.getElementById('u-qtd').value='';
 }
 
 // ══ FUNCIONARIOS ══
 function salvarFunc(){
   var nome=document.getElementById('fn-nome').value.trim(),func=document.getElementById('fn-func').value.trim();
   if(!nome){alert('Informe o nome.');return;}
-  db.funcs.push({id:nid(),nome:nome,func:func});salvar();
+  salvarFirestore('funcs',{id:nid(),nome:nome,func:func});
   document.getElementById('fn-nome').value='';document.getElementById('fn-func').value='';
-  renderListaFuncs();populaSelFunc();renderDash();
+  setTimeout(function(){renderListaFuncs();populaSelFunc();},500);
 }
 function renderListaFuncs(){
-  document.getElementById('lista-funcs').innerHTML=db.funcs.length?db.funcs.map(function(f){return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+f.func+'</div></div><button class="bdel" onclick="delFunc('+f.id+')">Excluir</button></div>';}).join(''):'<div class="empty" style="padding:14px">Nenhum funcionario</div>';
+  document.getElementById('lista-funcs').innerHTML=appDB.funcs.length?appDB.funcs.map(function(f){return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+f.func+'</div></div><button class="bdel" onclick="delFunc('+f.id+')">Excluir</button></div>';}).join(''):'<div class="empty" style="padding:14px">Nenhum funcionario</div>';
 }
-function delFunc(id){if(!confirm('Excluir?'))return;db.funcs=db.funcs.filter(function(f){return f.id!==id;});salvar();renderListaFuncs();populaSelFunc();}
+function delFunc(id){if(!confirm('Excluir?'))return;deletarFirestore('funcs',id);}
 function populaSelFunc(){
   ['t-func','ft-func'].forEach(function(sid){
     var sel=document.getElementById(sid);if(!sel)return;
     var isFiltro=sid==='ft-func';
-    sel.innerHTML=(isFiltro?'<option value="">Todos</option>':'')+db.funcs.map(function(f){return '<option value="'+f.id+'">'+f.nome+'</option>';}).join('');
+    sel.innerHTML=(isFiltro?'<option value="">Todos</option>':'')+appDB.funcs.map(function(f){return '<option value="'+f.id+'">'+f.nome+'</option>';}).join('');
   });
 }
 
 // ══ TAREFAS ══
 function onStatChange(){
-  var stat=document.getElementById('t-stat').value;
-  var hoje_=hoje();
-  if(stat==='Em andamento'&&!document.getElementById('t-inicio').value){
-    document.getElementById('t-inicio').value=hoje_;
-  }
-  if(stat==='Concluida'&&!document.getElementById('t-termino').value){
-    document.getElementById('t-termino').value=hoje_;
-    if(!document.getElementById('t-inicio').value)document.getElementById('t-inicio').value=hoje_;
-  }
+  var stat=document.getElementById('t-stat').value,h=hoje();
+  if(stat==='Em andamento'&&!document.getElementById('t-inicio').value)document.getElementById('t-inicio').value=h;
+  if(stat==='Concluida'){if(!document.getElementById('t-inicio').value)document.getElementById('t-inicio').value=h;if(!document.getElementById('t-termino').value)document.getElementById('t-termino').value=h;}
 }
-
 function abrirNovaTarefa(){
   document.getElementById('t-edit-id').value='';
   document.getElementById('m-tarefa-titulo').textContent='Nova tarefa';
   document.getElementById('t-btn-salvar').textContent='Adicionar tarefa';
   document.getElementById('t-data').value=hoje();
-  document.getElementById('t-inicio').value='';
-  document.getElementById('t-termino').value='';
-  document.getElementById('t-desc').value='';
-  document.getElementById('t-obs').value='';
+  document.getElementById('t-inicio').value='';document.getElementById('t-termino').value='';
+  document.getElementById('t-desc').value='';document.getElementById('t-obs').value='';
   document.getElementById('t-stat').value='Pendente';
-  populaSelFunc();
-  abreM('m-tarefa');
+  populaSelFunc();abreM('m-tarefa');
 }
-
 function editarTarefa(id){
-  var t=db.tarefas.filter(function(t){return t.id===id;})[0];
+  var t=appDB.tarefas.filter(function(t){return String(t.id)===String(id);})[0];
   if(!t)return;
   populaSelFunc();
   document.getElementById('t-edit-id').value=id;
@@ -710,59 +773,33 @@ function editarTarefa(id){
   document.getElementById('t-obs').value=t.obs||'';
   document.getElementById('t-stat').value=t.stat||'Pendente';
   document.getElementById('t-setor').value=t.setor||'Lavoura';
-  // set func
   var sel=document.getElementById('t-func');
-  for(var i=0;i<sel.options.length;i++){if(parseInt(sel.options[i].value)===t.fid){sel.selectedIndex=i;break;}}
+  for(var i=0;i<sel.options.length;i++){if(String(sel.options[i].value)===String(t.fid)){sel.selectedIndex=i;break;}}
   abreM('m-tarefa');
 }
-
 function salvarTarefa(){
   var editId=document.getElementById('t-edit-id').value;
-  var data=document.getElementById('t-data').value;
-  var fid=parseInt(document.getElementById('t-func').value);
-  var setor=document.getElementById('t-setor').value;
-  var stat=document.getElementById('t-stat').value;
-  var inicio=document.getElementById('t-inicio').value;
-  var termino=document.getElementById('t-termino').value;
-  var desc=document.getElementById('t-desc').value.trim();
-  var obs=document.getElementById('t-obs').value.trim();
-  if(!data||!desc||!fid){alert('Preencha data prevista, funcionario e descricao.');return;}
-  var f=db.funcs.filter(function(f){return f.id===fid;})[0];
-  if(editId){
-    // EDITAR
-    var t=db.tarefas.filter(function(t){return String(t.id)===String(editId);})[0];
-    if(t){t.data=data;t.fid=fid;t.fnome=f?f.nome:'';t.setor=setor;t.stat=stat;t.inicio=inicio;t.termino=termino;t.desc=desc;t.obs=obs;}
-  }else{
-    // NOVA
-    db.tarefas.push({id:nid(),data:data,fid:fid,fnome:f?f.nome:'',setor:setor,desc:desc,stat:stat,inicio:inicio,termino:termino,obs:obs});
-  }
-  salvar();
-  fechaM('m-tarefa');renderTarefas();renderDash();
+  var data=document.getElementById('t-data').value,fid=parseInt(document.getElementById('t-func').value),setor=document.getElementById('t-setor').value,stat=document.getElementById('t-stat').value,inicio=document.getElementById('t-inicio').value,termino=document.getElementById('t-termino').value,desc=document.getElementById('t-desc').value.trim(),obs=document.getElementById('t-obs').value.trim();
+  if(!data||!desc||!fid){alert('Preencha data, funcionario e descricao.');return;}
+  var f=appDB.funcs.filter(function(f){return f.id===fid;})[0];
+  var item={id:editId?Number(editId):nid(),data:data,fid:fid,fnome:f?f.nome:'',setor:setor,desc:desc,stat:stat,inicio:inicio,termino:termino,obs:obs};
+  salvarFirestore('tarefas',item);
+  fechaM('m-tarefa');
 }
 var vistaT='lista';
 function setVista(v){vistaT=v;document.getElementById('tv-lista').classList.toggle('active',v==='lista');document.getElementById('tv-kanban').classList.toggle('active',v==='kanban');renderTarefas();}
 function renderTarefas(){
   var fid=document.getElementById('ft-func').value,fst=document.getElementById('ft-stat').value;
-  var lista=db.tarefas.filter(function(t){if(fid&&String(t.fid)!==fid)return false;if(fst&&t.stat!==fst)return false;return true;}).sort(function(a,b){return b.data.localeCompare(a.data);});
+  var lista=appDB.tarefas.filter(function(t){if(fid&&String(t.fid)!==fid)return false;if(fst&&t.stat!==fst)return false;return true;}).sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
   var el=document.getElementById('vista-tarefas');
   if(!lista.length){el.innerHTML='<div class="empty"><div class="ei">✅</div>Nenhuma tarefa</div>';return;}
   if(vistaT==='lista'){
     el.innerHTML='<div class="card"><div style="padding:0 16px">'+lista.map(function(t){
       var datas='';
-      if(t.inicio||t.termino){
-        datas='<div class="lsub" style="margin-top:2px">';
-        if(t.inicio)datas+='Inicio: '+fmtD(t.inicio);
-        if(t.inicio&&t.termino)datas+=' | ';
-        if(t.termino)datas+='Termino: '+fmtD(t.termino);
-        datas+='</div>';
-      }
-      return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - Previsto: '+fmtD(t.data)+'</div>'+datas+(t.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+t.obs+'</div>':'')+'</div>'+
+      if(t.inicio||t.termino){datas='<div class="lsub" style="margin-top:2px">';if(t.inicio)datas+='Inicio: '+fmtD(t.inicio);if(t.inicio&&t.termino)datas+=' | ';if(t.termino)datas+='Termino: '+fmtD(t.termino);datas+='</div>';}
+      return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - '+fmtD(t.data)+'</div>'+datas+(t.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+t.obs+'</div>':'')+'</div>'+
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">'+
-          '<select class="sst" onchange="mudaStat('+t.id+',this.value)">'+
-            '<option'+(t.stat==='Pendente'?' selected':'')+'>Pendente</option>'+
-            '<option'+(t.stat==='Em andamento'?' selected':'')+'>Em andamento</option>'+
-            '<option'+(t.stat==='Concluida'?' selected':'')+'>Concluida</option>'+
-          '</select>'+
+          '<select class="sst" onchange="mudaStat('+t.id+',this.value)"><option'+(t.stat==='Pendente'?' selected':'')+'>Pendente</option><option'+(t.stat==='Em andamento'?' selected':'')+'>Em andamento</option><option'+(t.stat==='Concluida'?' selected':'')+'>Concluida</option></select>'+
           '<button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
           '<button class="bdel" onclick="delTarefa('+t.id+')">Excluir</button>'+
         '</div></div>';
@@ -772,50 +809,33 @@ function renderTarefas(){
     el.innerHTML='<div class="kanban">'+cols.map(function(s){
       var cards=lista.filter(function(t){return t.stat===s;});
       return '<div class="kcol"><div class="kct" style="color:'+cores[s]+'">'+s+' ('+cards.length+')</div>'+
-        (cards.map(function(t){
-          var datas='';
-          if(t.inicio)datas+='<div class="km">Inicio: '+fmtD(t.inicio)+'</div>';
-          if(t.termino)datas+='<div class="km">Termino: '+fmtD(t.termino)+'</div>';
-          return '<div class="kcard">'+
-            '<div class="kct2">'+t.desc+'</div>'+
-            '<div class="km">'+t.fnome+' - '+t.setor+'</div>'+
-            datas+
-            (t.obs?'<div class="km" style="font-style:italic;margin-top:3px">'+t.obs+'</div>':'')+
-            '<div style="margin-top:8px"><button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button></div>'+
-          '</div>';
-        }).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:16px 0">Vazio</div>')+
+        (cards.map(function(t){var d='';if(t.inicio)d+='<div class="km">Inicio: '+fmtD(t.inicio)+'</div>';if(t.termino)d+='<div class="km">Termino: '+fmtD(t.termino)+'</div>';return '<div class="kcard"><div class="kct2">'+t.desc+'</div><div class="km">'+t.fnome+' - '+t.setor+'</div>'+d+(t.obs?'<div class="km" style="font-style:italic;margin-top:3px">'+t.obs+'</div>':'')+'<div style="margin-top:8px"><button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button></div></div>';}).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:16px 0">Vazio</div>')+
       '</div>';
     }).join('')+'</div>';
   }
 }
 function mudaStat(id,s){
-  var t=db.tarefas.filter(function(t){return t.id===id;})[0];
-  if(t){
-    t.stat=s;
-    if(s==='Em andamento'&&!t.inicio)t.inicio=hoje();
-    if(s==='Concluida'){if(!t.inicio)t.inicio=hoje();if(!t.termino)t.termino=hoje();}
-    salvar();renderTarefas();renderDash();
-  }
+  var t=appDB.tarefas.filter(function(t){return String(t.id)===String(id);})[0];
+  if(t){t.stat=s;if(s==='Em andamento'&&!t.inicio)t.inicio=hoje();if(s==='Concluida'){if(!t.inicio)t.inicio=hoje();if(!t.termino)t.termino=hoje();}salvarFirestore('tarefas',t);}
 }
-function delTarefa(id){if(!confirm('Excluir?'))return;db.tarefas=db.tarefas.filter(function(t){return t.id!==id;});salvar();renderTarefas();renderDash();}
+function delTarefa(id){if(!confirm('Excluir?'))return;deletarFirestore('tarefas',id);}
 
-// ══ PECAS E MAO DE OBRA ══
+// ══ PECAS ══
 function salvarPeca(){
   var data=document.getElementById('p-data').value,tipo=document.getElementById('p-tipo').value,desc=document.getElementById('p-desc').value.trim(),maq=document.getElementById('p-maq').value.trim(),val=parseFloat(document.getElementById('p-val').value)||0,forn=document.getElementById('p-forn').value.trim(),obs=document.getElementById('p-obs').value.trim();
   if(!data||!desc){alert('Preencha data e descricao.');return;}
-  db.pecas.push({id:nid(),data:data,tipo:tipo,desc:desc,maq:maq,val:val,forn:forn,obs:obs});
-  salvar();
+  salvarFirestore('pecas',{id:nid(),data:data,tipo:tipo,desc:desc,maq:maq,val:val,forn:forn,obs:obs});
   ['p-desc','p-maq','p-forn','p-obs'].forEach(function(i){document.getElementById(i).value='';});
   document.getElementById('p-val').value='';
-  fechaM('m-peca');renderPecas();renderDash();
+  fechaM('m-peca');
 }
 function renderPecas(){
-  var lista=db.pecas.slice().sort(function(a,b){return b.data.localeCompare(a.data);});
+  var lista=appDB.pecas.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
   var tot=lista.reduce(function(s,p){return s+p.val;},0);
   document.getElementById('pecas-total').textContent='Total: '+fmtR(tot);
-  document.getElementById('lista-pecas').innerHTML=lista.length?lista.map(function(p){return '<div class="lrow"><div class="lm"><div class="ltit">'+p.desc+'</div><div class="lsub">'+p.tipo+(p.maq?' - '+p.maq:'')+'</div><div class="lsub">'+( p.forn||'--')+' - '+fmtD(p.data)+'</div></div><div class="lr"><div class="lv">'+fmtR(p.val)+'</div><button class="bdel" style="margin-top:5px" onclick="delPeca('+p.id+')">Excluir</button></div></div>';}).join(''):'<div class="empty"><div class="ei">🔧</div>Nenhum registro</div>';
+  document.getElementById('lista-pecas').innerHTML=lista.length?lista.map(function(p){return '<div class="lrow"><div class="lm"><div class="ltit">'+p.desc+'</div><div class="lsub">'+p.tipo+(p.maq?' - '+p.maq:'')+'</div><div class="lsub">'+(p.forn||'--')+' - '+fmtD(p.data)+'</div></div><div class="lr"><div class="lv">'+fmtR(p.val)+'</div><button class="bdel" style="margin-top:5px" onclick="delPeca('+p.id+')">Excluir</button></div></div>';}).join(''):'<div class="empty"><div class="ei">🔧</div>Nenhum registro</div>';
 }
-function delPeca(id){if(!confirm('Excluir?'))return;db.pecas=db.pecas.filter(function(p){return p.id!==id;});salvar();renderPecas();renderDash();}
+function delPeca(id){if(!confirm('Excluir?'))return;deletarFirestore('pecas',id);}
 
 // ══ PECUARIA ══
 function mudaTipoPec(){
@@ -828,44 +848,32 @@ function salvarPecuaria(){
   var data=document.getElementById('pec-data').value,tipo=document.getElementById('pec-tipo').value,obs=document.getElementById('pec-obs').value.trim();
   if(!data){alert('Informe a data.');return;}
   var reg={id:nid(),data:data,tipo:tipo,obs:obs};
-  if(tipo==='nascimento'){
-    reg.sexo=document.getElementById('pec-sexo').value;
-    reg.idAnimal=document.getElementById('pec-id-animal').value.trim();
-    reg.raca=document.getElementById('pec-raca').value.trim();
-    reg.mae=document.getElementById('pec-mae').value.trim();
-  }else if(tipo==='contagem'){
-    reg.vacas=parseInt(document.getElementById('pec-vacas').value)||0;
-    reg.bezerros=parseInt(document.getElementById('pec-bezerros').value)||0;
-    reg.touros=parseInt(document.getElementById('pec-touros').value)||0;
-  }else{
-    reg.idAnimal=document.getElementById('pec-id2').value.trim();
-    reg.qtd=parseFloat(document.getElementById('pec-qtd2').value)||1;
-    reg.val=parseFloat(document.getElementById('pec-val2').value)||0;
-  }
-  db.pecuaria.push(reg);salvar();
+  if(tipo==='nascimento'){reg.sexo=document.getElementById('pec-sexo').value;reg.idAnimal=document.getElementById('pec-id-animal').value.trim();reg.raca=document.getElementById('pec-raca').value.trim();reg.mae=document.getElementById('pec-mae').value.trim();}
+  else if(tipo==='contagem'){reg.vacas=parseInt(document.getElementById('pec-vacas').value)||0;reg.bezerros=parseInt(document.getElementById('pec-bezerros').value)||0;reg.touros=parseInt(document.getElementById('pec-touros').value)||0;}
+  else{reg.idAnimal=document.getElementById('pec-id2').value.trim();reg.qtd=parseFloat(document.getElementById('pec-qtd2').value)||1;reg.val=parseFloat(document.getElementById('pec-val2').value)||0;}
+  salvarFirestore('pecuaria',reg);
   ['pec-id-animal','pec-raca','pec-mae','pec-obs','pec-id2'].forEach(function(i){var el=document.getElementById(i);if(el)el.value='';});
   ['pec-vacas','pec-bezerros','pec-touros','pec-qtd2','pec-val2'].forEach(function(i){var el=document.getElementById(i);if(el)el.value='';});
-  fechaM('m-pecuaria');renderPecuaria();renderDash();
+  fechaM('m-pecuaria');
 }
 function renderPecuaria(){
-  var lista=db.pecuaria.slice().sort(function(a,b){return b.data.localeCompare(a.data);});
-  var ultContagem=db.pecuaria.filter(function(p){return p.tipo==='contagem';}).slice(-1)[0];
+  var lista=appDB.pecuaria.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
+  var ultContagem=appDB.pecuaria.filter(function(p){return p.tipo==='contagem';}).slice(-1)[0];
   var totalRebanho=ultContagem?(Number(ultContagem.vacas||0)+Number(ultContagem.bezerros||0)+Number(ultContagem.touros||0)):0;
-  var nascTotal=db.pecuaria.filter(function(p){return p.tipo==='nascimento';}).length;
+  var nascTotal=appDB.pecuaria.filter(function(p){return p.tipo==='nascimento';}).length;
   document.getElementById('pec-grid').innerHTML=
-    '<div class="st b"><div class="sl">Rebanho atual</div><div class="sv">'+totalRebanho+'</div><div class="ss">'+(ultContagem?'Ultima contagem: '+fmtD(ultContagem.data):'Sem contagem')+'</div></div>'+
+    '<div class="st b"><div class="sl">Rebanho atual</div><div class="sv">'+totalRebanho+'</div><div class="ss">'+(ultContagem?'Contagem: '+fmtD(ultContagem.data):'Sem contagem')+'</div></div>'+
     '<div class="st g"><div class="sl">Nascimentos total</div><div class="sv">'+nascTotal+'</div><div class="ss">bezerros registrados</div></div>';
-
-  var tipoLabel={'nascimento':'Nascimento','contagem':'Contagem','morte':'Morte','venda':'Venda','compra':'Compra de animal','vacina':'Vacinacao','pesagem':'Pesagem','outro':'Outro'};
+  var tipoLabel={nascimento:'Nascimento',contagem:'Contagem',morte:'Morte',venda:'Venda',compra:'Compra',vacina:'Vacinacao',pesagem:'Pesagem',outro:'Outro'};
   document.getElementById('lista-pecuaria').innerHTML=lista.length?lista.map(function(p){
-    var detalhe='';
-    if(p.tipo==='nascimento')detalhe=(p.sexo||'')+(p.idAnimal?' - '+p.idAnimal:'')+(p.raca?' - '+p.raca:'')+(p.mae?' (Mae: '+p.mae+')':'');
-    else if(p.tipo==='contagem')detalhe='Vacas: '+(p.vacas||0)+' | Bezerros: '+(p.bezerros||0)+' | Touros: '+(p.touros||0)+' | Total: '+(Number(p.vacas||0)+Number(p.bezerros||0)+Number(p.touros||0));
-    else detalhe=(p.idAnimal||'')+(p.qtd?' - Qtd: '+p.qtd:'')+(p.val?' - '+fmtR(p.val):'');
-    return '<div class="lrow"><div class="lm"><div class="ltit">'+(tipoLabel[p.tipo]||p.tipo)+'</div><div class="lsub">'+fmtD(p.data)+(detalhe?' - '+detalhe:'')+'</div>'+(p.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+p.obs+'</div>':'')+'</div><button class="bdel" onclick="delPecuaria('+p.id+')">Excluir</button></div>';
+    var det='';
+    if(p.tipo==='nascimento')det=(p.sexo||'')+(p.idAnimal?' - '+p.idAnimal:'')+(p.raca?' - '+p.raca:'')+(p.mae?' (Mae: '+p.mae+')':'');
+    else if(p.tipo==='contagem')det='Vacas: '+(p.vacas||0)+' | Bezerros: '+(p.bezerros||0)+' | Touros: '+(p.touros||0)+' | Total: '+(Number(p.vacas||0)+Number(p.bezerros||0)+Number(p.touros||0));
+    else det=(p.idAnimal||'')+(p.qtd?' Qtd: '+p.qtd:'')+(p.val?' '+fmtR(p.val):'');
+    return '<div class="lrow"><div class="lm"><div class="ltit">'+(tipoLabel[p.tipo]||p.tipo)+'</div><div class="lsub">'+fmtD(p.data)+(det?' - '+det:'')+'</div>'+(p.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+p.obs+'</div>':'')+'</div><button class="bdel" onclick="delPecuaria('+p.id+')">Excluir</button></div>';
   }).join(''):'<div class="empty"><div class="ei">🐄</div>Nenhum registro</div>';
 }
-function delPecuaria(id){if(!confirm('Excluir?'))return;db.pecuaria=db.pecuaria.filter(function(p){return p.id!==id;});salvar();renderPecuaria();renderDash();}
+function delPecuaria(id){if(!confirm('Excluir?'))return;deletarFirestore('pecuaria',id);}
 
 // ══ RELATORIOS ══
 function filtPer(lista,campo){
@@ -873,161 +881,68 @@ function filtPer(lista,campo){
   return lista.filter(function(i){if(de&&i[campo]<de)return false;if(ate&&i[campo]>ate)return false;return true;});
 }
 function renderRel(){
-  var comp=filtPer(db.compras,'data'),tar=filtPer(db.tarefas,'data');
+  var comp=filtPer(appDB.compras,'data'),tar=filtPer(appDB.tarefas,'data');
   var pCat={},pForn={},pSafra={};
   comp.forEach(function(c){pCat[c.cat]=(pCat[c.cat]||0)+c.qtd*c.val;var f=c.forn||'Sem fornecedor';pForn[f]=(pForn[f]||0)+c.qtd*c.val;var sk=(c.safra||'Sem safra')+' - '+(c.cultura||'Sem cultura');pSafra[sk]=(pSafra[sk]||0)+c.qtd*c.val;});
   function toRows(obj){var e=Object.entries(obj).sort(function(a,b){return b[1]-a[1];});return e.length?e.map(function(e){return '<div class="lrow"><span class="ltit">'+e[0]+'</span><span class="lv">'+fmtR(e[1])+'</span></div>';}).join(''):'<div class="empty" style="padding:14px">Sem dados</div>';}
   document.getElementById('rel-cat').innerHTML=toRows(pCat);
   document.getElementById('rel-forn').innerHTML=toRows(pForn);
   document.getElementById('rel-safra').innerHTML=toRows(pSafra);
-  document.getElementById('rel-func').innerHTML=db.funcs.map(function(f){var ft=tar.filter(function(t){return t.fid===f.id;});var conc=ft.filter(function(t){return t.stat==='Concluida';}).length;return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+ft.length+' tarefa(s) - '+conc+' concluida(s)</div></div><div class="lv">'+conc+'</div></div>';}).join('')||'<div class="empty" style="padding:14px">Sem dados</div>';
-}
-
-// ══ BACKUP ══
-function exportarBackup(){
-  var backup={versao:'fazenda_v4',data:hoje(),db:db};
-  var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='backup_fazenda_'+hoje()+'.json';
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);URL.revokeObjectURL(url);
-  alert('Backup salvo! Guarde o arquivo no iCloud para nao perder seus dados.');
-}
-function importarBackup(input){
-  var file=input.files[0];if(!file)return;
-  if(!confirm('Isso vai SUBSTITUIR todos os dados atuais pelo backup. Tem certeza?')){input.value='';return;}
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var backup=JSON.parse(e.target.result);
-      if(!backup.db){alert('Arquivo de backup invalido.');return;}
-      db=backup.db;
-      if(!db.pecas)db.pecas=[];
-      if(!db.pecuaria)db.pecuaria=[];
-      salvar();
-      renderPag(pag);renderDash();
-      alert('Backup restaurado com sucesso!');
-    }catch(err){alert('Erro ao ler o backup: '+err.message);}
-    input.value='';
-  };
-  reader.readAsText(file);
+  document.getElementById('rel-func').innerHTML=appDB.funcs.map(function(f){var ft=tar.filter(function(t){return t.fid===f.id;});var conc=ft.filter(function(t){return t.stat==='Concluida';}).length;return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+ft.length+' tarefa(s) - '+conc+' concluida(s)</div></div><div class="lv">'+conc+'</div></div>';}).join('')||'<div class="empty" style="padding:14px">Sem dados</div>';
 }
 
 // ══ EXCEL ══
 function expXlsx(tipo){
   var wb=XLSX.utils.book_new();
-  if(tipo==='compras'){
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.compras.map(function(c){return {'Data':fmtD(c.data),'Safra':c.safra||'','Cultura':c.cultura||'','Insumo':c.nome,'Categoria':c.cat,'Qtd':c.qtd,'Unid':c.un,'Valor Unit':c.val,'Total':parseFloat((c.qtd*c.val).toFixed(2)),'Fornecedor':c.forn,'Obs':c.obs};})),'Compras');
-    XLSX.writeFile(wb,'compras.xlsx');
-  }else if(tipo==='pecas'){
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.pecas.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Descricao':p.desc,'Maquina':p.maq,'Valor':p.val,'Fornecedor':p.forn,'Obs':p.obs};})),'Pecas e MO');
-    XLSX.writeFile(wb,'pecas_mao_obra.xlsx');
-  }else if(tipo==='pecuaria'){
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.pecuaria.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Sexo':p.sexo||'','ID Animal':p.idAnimal||'','Raca':p.raca||'','Mae':p.mae||'','Vacas':p.vacas||'','Bezerros':p.bezerros||'','Touros':p.touros||'','Qtd':p.qtd||'','Valor':p.val||'','Obs':p.obs};})),'Pecuaria');
-    XLSX.writeFile(wb,'pecuaria.xlsx');
-  }
+  if(tipo==='compras'){XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(appDB.compras.map(function(c){return {'Data':fmtD(c.data),'Safra':c.safra||'','Cultura':c.cultura||'','Insumo':c.nome,'Categoria':c.cat,'Qtd':c.qtd,'Unid':c.un,'Valor Unit':c.val,'Total':parseFloat((c.qtd*c.val).toFixed(2)),'Fornecedor':c.forn};})),'Compras');XLSX.writeFile(wb,'compras.xlsx');}
+  else if(tipo==='pecas'){XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(appDB.pecas.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Descricao':p.desc,'Maquina':p.maq,'Valor':p.val,'Fornecedor':p.forn,'Obs':p.obs};})),'Pecas e MO');XLSX.writeFile(wb,'pecas_mo.xlsx');}
+  else if(tipo==='pecuaria'){XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(appDB.pecuaria.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'ID Animal':p.idAnimal||'','Sexo':p.sexo||'','Raca':p.raca||'','Mae':p.mae||'','Vacas':p.vacas||'','Bezerros':p.bezerros||'','Touros':p.touros||'','Qtd':p.qtd||'','Valor':p.val||'','Obs':p.obs};})),'Pecuaria');XLSX.writeFile(wb,'pecuaria.xlsx');}
 }
 function expRelatorio(){
   var wb=XLSX.utils.book_new();
-  var comp=filtPer(db.compras,'data'),tar=filtPer(db.tarefas,'data');
+  var comp=filtPer(appDB.compras,'data'),tar=filtPer(appDB.tarefas,'data');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(comp.map(function(c){return {'Data':fmtD(c.data),'Safra':c.safra||'','Cultura':c.cultura||'','Insumo':c.nome,'Cat':c.cat,'Qtd':c.qtd,'Un':c.un,'Val':c.val,'Total':parseFloat((c.qtd*c.val).toFixed(2)),'Forn':c.forn};})),'Compras');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.pecas.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Descricao':p.desc,'Maquina':p.maq,'Valor':p.val,'Fornecedor':p.forn};})),'Pecas e MO');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.pecuaria.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Detalhes':(p.sexo||'')+(p.idAnimal?' '+p.idAnimal:'')+(p.vacas!==undefined?'V:'+p.vacas+' B:'+p.bezerros+' T:'+p.touros:''),'Obs':p.obs};})),'Pecuaria');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(tar.map(function(t){return {'Data prevista':fmtD(t.data),'Inicio':fmtD(t.inicio),'Termino':fmtD(t.termino),'Funcionario':t.fnome,'Setor':t.setor,'Descricao':t.desc,'Status':t.stat,'Obs':t.obs};})),'Tarefas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(appDB.pecas.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Descricao':p.desc,'Maquina':p.maq,'Valor':p.val,'Fornecedor':p.forn};})),'Pecas e MO');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(tar.map(function(t){return {'Data':fmtD(t.data),'Inicio':fmtD(t.inicio),'Termino':fmtD(t.termino),'Funcionario':t.fnome,'Setor':t.setor,'Descricao':t.desc,'Status':t.stat,'Obs':t.obs};})),'Tarefas');
   XLSX.writeFile(wb,'relatorio_completo.xlsx');
 }
 
-// ══ NF TABS ══
-function setTabNF(tab){
-  document.getElementById('tab-xml').classList.toggle('active',tab==='xml');
-  document.getElementById('tab-foto').classList.toggle('active',tab==='foto');
-  document.getElementById('panel-xml').style.display=tab==='xml'?'block':'none';
-  document.getElementById('panel-foto').style.display=tab==='foto'?'block':'none';
-  limparNF();
-}
-function limparNF(){
-  document.getElementById('nf-stat').style.display='none';
-  document.getElementById('nf-res').style.display='none';
-  document.getElementById('nf-confirmar').style.display='none';
-  var p=document.getElementById('nf-prev');if(p)p.style.display='none';
-  nfDados=null;
-}
-
-// ══ XML NF-e ══
+// ══ NF INSUMOS ══
+function setTabNF(tab){document.getElementById('tab-xml').classList.toggle('active',tab==='xml');document.getElementById('tab-foto').classList.toggle('active',tab==='foto');document.getElementById('panel-xml').style.display=tab==='xml'?'block':'none';document.getElementById('panel-foto').style.display=tab==='foto'?'block':'none';limparNF();}
+function limparNF(){document.getElementById('nf-stat').style.display='none';document.getElementById('nf-res').style.display='none';document.getElementById('nf-confirmar').style.display='none';var p=document.getElementById('nf-prev');if(p)p.style.display='none';nfDados=null;}
 var nfDados=null;
 function lerXMLNFe(input){
   var file=input.files[0];if(!file)return;
-  statusNF('Lendo arquivo XML...',false);
-  document.getElementById('nf-res').style.display='none';
-  document.getElementById('nf-confirmar').style.display='none';
+  statusNF('Lendo XML...',false);
   var reader=new FileReader();
   reader.onload=function(e){
     try{
       var parser=new DOMParser(),xml=parser.parseFromString(e.target.result,'text/xml');
-      if(xml.querySelector('parsererror')){statusNF('Arquivo XML invalido.',true);return;}
+      if(xml.querySelector('parsererror')){statusNF('XML invalido.',true);return;}
       function getTag(el,tag){var r=el.querySelector(tag);if(r)return r;var all=el.getElementsByTagName('*');for(var i=0;i<all.length;i++){if(all[i].localName===tag)return all[i];}return null;}
       function getTags(el,tag){var r=el.querySelectorAll(tag);if(r.length)return r;var res=[],all=el.getElementsByTagName('*');for(var i=0;i<all.length;i++){if(all[i].localName===tag)res.push(all[i]);}return res;}
       function txt(el,tag){var t=getTag(el,tag);return t?t.textContent.trim():'';}
-      var emit=getTag(xml,'emit');
-      var fornecedor=emit?txt(emit,'xNome'):'';if(!fornecedor&&emit)fornecedor=txt(emit,'xFant');if(!fornecedor)fornecedor='Fornecedor nao identificado';
-      var cnpj=emit?txt(emit,'CNPJ'):'';
-      var dhEmi=getTag(xml,'dhEmi')||getTag(xml,'dEmi');
-      var dataStr=dhEmi?dhEmi.textContent.trim().split('T')[0]:hoje();
-      var nNF=txt(xml,'nNF');
-      var ICMSTot=getTag(xml,'ICMSTot');
-      var totalNota=parseFloat(ICMSTot?txt(ICMSTot,'vNF'):'0')||0;
-      var dets=getTags(xml,'det');
-      if(!dets||!dets.length){statusNF('Nenhum produto encontrado no XML.',true);return;}
-      var itens=[];
-      var unMapa={'UN':'un','KG':'kg','LT':'L','L':'L','SC':'sc','CX':'cx','TON':'t','T':'t','PC':'un','GR':'kg','ML':'L'};
-      for(var i=0;i<dets.length;i++){
-        var prod=getTag(dets[i],'prod');if(!prod)continue;
-        var qCom=parseFloat(txt(prod,'qCom'))||1,uCom=txt(prod,'uCom')||'un',vUnCom=parseFloat(txt(prod,'vUnCom'))||0,vProd=parseFloat(txt(prod,'vProd'))||0;
-        itens.push({nome:txt(prod,'xProd'),qtd:qCom,unidade:unMapa[uCom.toUpperCase()]||uCom.toLowerCase(),valor_unitario:vUnCom||(vProd/qCom),total:vProd,categoria:'Outros'});
-      }
-      nfDados={fornecedor:fornecedor,cnpj:cnpj,data:dataStr,nNF:nNF,total:totalNota,itens:itens,origem:'xml'};
-      mostrarResultadoNF(nfDados);
-    }catch(err){statusNF('Erro ao ler o XML: '+err.message,true);}
+      var emit=getTag(xml,'emit');var fornecedor=emit?txt(emit,'xNome'):'';if(!fornecedor&&emit)fornecedor=txt(emit,'xFant');if(!fornecedor)fornecedor='Fornecedor';
+      var dhEmi=getTag(xml,'dhEmi')||getTag(xml,'dEmi');var dataStr=dhEmi?dhEmi.textContent.trim().split('T')[0]:hoje();
+      var nNF=txt(xml,'nNF');var ICMSTot=getTag(xml,'ICMSTot');var totalNota=parseFloat(ICMSTot?txt(ICMSTot,'vNF'):'0')||0;
+      var dets=getTags(xml,'det');if(!dets||!dets.length){statusNF('Nenhum produto encontrado.',true);return;}
+      var itens=[];var unMapa={'UN':'un','KG':'kg','LT':'L','L':'L','SC':'sc','CX':'cx','TON':'t','T':'t','PC':'un'};
+      for(var i=0;i<dets.length;i++){var prod=getTag(dets[i],'prod');if(!prod)continue;var qCom=parseFloat(txt(prod,'qCom'))||1,uCom=txt(prod,'uCom')||'un',vUnCom=parseFloat(txt(prod,'vUnCom'))||0,vProd=parseFloat(txt(prod,'vProd'))||0;itens.push({nome:txt(prod,'xProd'),qtd:qCom,unidade:unMapa[uCom.toUpperCase()]||uCom.toLowerCase(),valor_unitario:vUnCom||(vProd/qCom),categoria:'Outros'});}
+      nfDados={fornecedor:fornecedor,data:dataStr,nNF:nNF,total:totalNota,itens:itens};mostrarResultadoNF(nfDados);
+    }catch(err){statusNF('Erro: '+err.message,true);}
   };
-  reader.onerror=function(){statusNF('Erro ao abrir o arquivo.',true);};
-  reader.readAsText(file,'UTF-8');
-  input.value='';
+  reader.readAsText(file,'UTF-8');input.value='';
 }
-
-// ══ FOTO IA ══
-function previewNF(input){
-  var file=input.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=document.getElementById('nf-prev');img.src=e.target.result;img.style.display='block';
-    document.getElementById('nf-res').style.display='none';document.getElementById('nf-confirmar').style.display='none';document.getElementById('nf-stat').style.display='none';
-    analisarFotoNF(e.target.result,file.type);
-  };
-  reader.readAsDataURL(file);
-}
+function previewNF(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){var img=document.getElementById('nf-prev');img.src=e.target.result;img.style.display='block';analisarFotoNF(e.target.result,file.type);};reader.readAsDataURL(file);}
 async function analisarFotoNF(dataUrl,mimeType){
-  var apiKey=document.getElementById('api-key').value.trim();
-  if(!apiKey){statusNF('Informe sua chave API do Google Gemini.',true);return;}
-  localStorage.setItem('fazenda_gemini',apiKey);
-  statusNF('Analisando nota fiscal com IA...',false);
+  var apiKey=document.getElementById('api-key').value.trim();if(!apiKey){statusNF('Informe a chave API.',true);return;}
+  localStorage.setItem('fazenda_gemini',apiKey);statusNF('Analisando com IA...',false);
   var base64=dataUrl.split(',')[1],media=mimeType||'image/jpeg';
-  var prompt='Analise a nota fiscal e extraia os dados. Responda APENAS com JSON valido sem markdown. Formato: {"fornecedor":"nome","data":"YYYY-MM-DD","itens":[{"nome":"produto","categoria":"Defensivo ou Fertilizante ou Racao ou Medicamento veterinario ou Combustivel ou Semente ou Equipamento ou Outros","qtd":0.0,"unidade":"kg ou L ou sc ou un ou cx ou t","valor_unitario":0.0}],"total":0.0}';
+  var prompt='Analise a nota fiscal. Responda APENAS JSON sem markdown. Formato: {"fornecedor":"nome","data":"YYYY-MM-DD","itens":[{"nome":"produto","categoria":"Defensivo ou Fertilizante ou Racao ou Medicamento veterinario ou Combustivel ou Semente ou Equipamento ou Outros","qtd":0.0,"unidade":"kg ou L ou sc ou un","valor_unitario":0.0}],"total":0.0}';
   var body=JSON.stringify({contents:[{parts:[{inline_data:{mime_type:media,data:base64}},{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:1000}});
   var modelos=['https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey,'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+apiKey,'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key='+apiKey];
-  var ultimoErro='';
-  for(var i=0;i<modelos.length;i++){
-    try{
-      var res=await fetch(modelos[i],{method:'POST',headers:{'Content-Type':'application/json'},body:body});
-      if(!res.ok){var err=await res.json().catch(function(){return{};});ultimoErro=(err.error&&err.error.message)||'Erro '+res.status;continue;}
-      var data=await res.json();
-      var text=((((data.candidates||[])[0]||{}).content||{}).parts||[{}])[0].text||'';
-      if(!text){continue;}
-      var json;try{json=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){statusNF('Nao consegui ler os dados. Tente foto mais nitida.',true);return;}
-      json.origem='foto';nfDados=json;mostrarResultadoNF(json);return;
-    }catch(e){ultimoErro=e.message;continue;}
-  }
-  statusNF('Erro: '+ultimoErro,true);
+  for(var i=0;i<modelos.length;i++){try{var res=await fetch(modelos[i],{method:'POST',headers:{'Content-Type':'application/json'},body:body});if(!res.ok)continue;var data=await res.json();var text=((((data.candidates||[])[0]||{}).content||{}).parts||[{}])[0].text||'';if(!text)continue;var json;try{json=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){statusNF('Nao consegui ler. Tente foto mais nitida.',true);return;}nfDados=json;mostrarResultadoNF(json);return;}catch(e){continue;}}
+  statusNF('Erro de conexao.',true);
 }
 function statusNF(msg,erro){var el=document.getElementById('nf-stat');el.textContent=(erro?'Erro: ':'')+msg;el.className='nfst '+(erro?'nfer':'nfok');el.style.display='block';}
 function mostrarResultadoNF(json){
@@ -1035,190 +950,89 @@ function mostrarResultadoNF(json){
   var itens=json.itens||[];
   var linhas=[['Fornecedor',json.fornecedor||'--'],['Data',json.data?fmtD(json.data):'--']];
   if(json.nNF)linhas.push(['Numero NF',json.nNF]);
-  linhas.push(['Total da nota',json.total?fmtR(json.total):'--'],['Produtos',itens.length+' item(ns)']);
+  linhas.push(['Total',json.total?fmtR(json.total):'--'],['Produtos',itens.length+' item(ns)']);
   itens.forEach(function(it,i){linhas.push(['Produto '+(i+1),(it.nome||'?')+' - '+(it.qtd||0)+' '+(it.unidade||'un')+' x '+fmtR(it.valor_unitario)]);});
   document.getElementById('nf-items').innerHTML=linhas.map(function(l){return '<div class="nfrw"><span class="nfrl">'+l[0]+'</span><span class="nfrv">'+l[1]+'</span></div>';}).join('');
   document.getElementById('nf-res').style.display='block';document.getElementById('nf-confirmar').style.display='flex';
 }
 function confirmarNF(){
-  if(!nfDados)return;
-  var itens=nfDados.itens||[];if(!itens.length){alert('Nenhum produto encontrado.');return;}
-  itens.forEach(function(it){db.compras.push({id:nid(),data:nfDados.data||hoje(),nome:it.nome||'Produto',cat:it.categoria||'Outros',qtd:Number(it.qtd)||1,un:it.unidade||'un',val:Number(it.valor_unitario)||0,forn:nfDados.fornecedor||'',min:0,obs:'Importado da NF'+(nfDados.nNF?' n.'+nfDados.nNF:''),safra:'',cultura:''});});
-  salvar();fechaM('m-nf');limparNF();
-  document.getElementById('xml-file').value='';
-  renderCompras();renderDash();
-  if(pag!=='compras')navTo('compras',document.querySelectorAll('.nb')[1],'Compras','Insumos');
+  if(!nfDados)return;var itens=nfDados.itens||[];if(!itens.length){alert('Nenhum produto.');return;}
+  itens.forEach(function(it){salvarFirestore('compras',{id:nid(),data:nfDados.data||hoje(),nome:it.nome||'Produto',cat:it.categoria||'Outros',qtd:Number(it.qtd)||1,un:it.unidade||'un',val:Number(it.valor_unitario)||0,forn:nfDados.fornecedor||'',min:0,obs:'NF'+(nfDados.nNF?' n.'+nfDados.nNF:''),safra:'',cultura:''});});
+  fechaM('m-nf');limparNF();
   setTimeout(function(){alert('✅ '+itens.length+' produto(s) adicionado(s)!');},300);
 }
 
-// ══ NF PECAS TABS ══
-function setTabNFPeca(tab){
-  document.getElementById('tab-xml-peca').classList.toggle('active',tab==='xml');
-  document.getElementById('tab-foto-peca').classList.toggle('active',tab==='foto');
-  document.getElementById('panel-xml-peca').style.display=tab==='xml'?'block':'none';
-  document.getElementById('panel-foto-peca').style.display=tab==='foto'?'block':'none';
-  limparNFPeca();
-}
-function limparNFPeca(){
-  document.getElementById('nf-stat-peca').style.display='none';
-  document.getElementById('nf-res-peca').style.display='none';
-  document.getElementById('nf-confirmar-peca').style.display='none';
-  var p=document.getElementById('nf-prev-peca');if(p)p.style.display='none';
-  nfDadosPeca=null;
-}
-
+// ══ NF PECAS ══
+function setTabNFPeca(tab){document.getElementById('tab-xml-peca').classList.toggle('active',tab==='xml');document.getElementById('tab-foto-peca').classList.toggle('active',tab==='foto');document.getElementById('panel-xml-peca').style.display=tab==='xml'?'block':'none';document.getElementById('panel-foto-peca').style.display=tab==='foto'?'block':'none';limparNFPeca();}
+function limparNFPeca(){document.getElementById('nf-stat-peca').style.display='none';document.getElementById('nf-res-peca').style.display='none';document.getElementById('nf-confirmar-peca').style.display='none';var p=document.getElementById('nf-prev-peca');if(p)p.style.display='none';nfDadosPeca=null;}
 var nfDadosPeca=null;
-
 function lerXMLNFePeca(input){
   var file=input.files[0];if(!file)return;
-  statusNFPeca('Lendo arquivo XML...',false);
-  document.getElementById('nf-res-peca').style.display='none';
-  document.getElementById('nf-confirmar-peca').style.display='none';
+  statusNFPeca('Lendo XML...',false);
   var reader=new FileReader();
   reader.onload=function(e){
     try{
       var parser=new DOMParser(),xml=parser.parseFromString(e.target.result,'text/xml');
-      if(xml.querySelector('parsererror')){statusNFPeca('Arquivo XML invalido.',true);return;}
+      if(xml.querySelector('parsererror')){statusNFPeca('XML invalido.',true);return;}
       function getTag(el,tag){var r=el.querySelector(tag);if(r)return r;var all=el.getElementsByTagName('*');for(var i=0;i<all.length;i++){if(all[i].localName===tag)return all[i];}return null;}
       function getTags(el,tag){var r=el.querySelectorAll(tag);if(r.length)return r;var res=[],all=el.getElementsByTagName('*');for(var i=0;i<all.length;i++){if(all[i].localName===tag)res.push(all[i]);}return res;}
       function txt(el,tag){var t=getTag(el,tag);return t?t.textContent.trim():'';}
-      var emit=getTag(xml,'emit');
-      var fornecedor=emit?txt(emit,'xNome'):'';if(!fornecedor&&emit)fornecedor=txt(emit,'xFant');if(!fornecedor)fornecedor='Fornecedor nao identificado';
-      var cnpj=emit?txt(emit,'CNPJ'):'';
-      var dhEmi=getTag(xml,'dhEmi')||getTag(xml,'dEmi');
-      var dataStr=dhEmi?dhEmi.textContent.trim().split('T')[0]:hoje();
-      var nNF=txt(xml,'nNF');
-      var ICMSTot=getTag(xml,'ICMSTot');
-      var totalNota=parseFloat(ICMSTot?txt(ICMSTot,'vNF'):'0')||0;
-      var dets=getTags(xml,'det');
-      if(!dets||!dets.length){statusNFPeca('Nenhum produto encontrado no XML.',true);return;}
+      var emit=getTag(xml,'emit');var fornecedor=emit?txt(emit,'xNome'):'';if(!fornecedor)fornecedor='Fornecedor';
+      var dhEmi=getTag(xml,'dhEmi')||getTag(xml,'dEmi');var dataStr=dhEmi?dhEmi.textContent.trim().split('T')[0]:hoje();
+      var nNF=txt(xml,'nNF');var ICMSTot=getTag(xml,'ICMSTot');var totalNota=parseFloat(ICMSTot?txt(ICMSTot,'vNF'):'0')||0;
+      var dets=getTags(xml,'det');if(!dets||!dets.length){statusNFPeca('Nenhum item.',true);return;}
       var itens=[];
-      for(var i=0;i<dets.length;i++){
-        var prod=getTag(dets[i],'prod');if(!prod)continue;
-        var vProd=parseFloat(txt(prod,'vProd'))||0;
-        var qCom=parseFloat(txt(prod,'qCom'))||1;
-        var vUnCom=parseFloat(txt(prod,'vUnCom'))||0;
-        itens.push({nome:txt(prod,'xProd'),val:vProd,valUnit:vUnCom||(vProd/qCom),qtd:qCom});
-      }
-      nfDadosPeca={fornecedor:fornecedor,cnpj:cnpj,data:dataStr,nNF:nNF,total:totalNota,itens:itens};
-      mostrarResultadoNFPeca(nfDadosPeca);
-    }catch(err){statusNFPeca('Erro ao ler o XML: '+err.message,true);}
+      for(var i=0;i<dets.length;i++){var prod=getTag(dets[i],'prod');if(!prod)continue;var vProd=parseFloat(txt(prod,'vProd'))||0,qCom=parseFloat(txt(prod,'qCom'))||1,vUnCom=parseFloat(txt(prod,'vUnCom'))||0;itens.push({nome:txt(prod,'xProd'),val:vProd,valUnit:vUnCom||(vProd/qCom)});}
+      nfDadosPeca={fornecedor:fornecedor,data:dataStr,nNF:nNF,total:totalNota,itens:itens};mostrarResultadoNFPeca(nfDadosPeca);
+    }catch(err){statusNFPeca('Erro: '+err.message,true);}
   };
-  reader.onerror=function(){statusNFPeca('Erro ao abrir o arquivo.',true);};
-  reader.readAsText(file,'UTF-8');
-  input.value='';
+  reader.readAsText(file,'UTF-8');input.value='';
 }
-
-function previewNFPeca(input){
-  var file=input.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=document.getElementById('nf-prev-peca');img.src=e.target.result;img.style.display='block';
-    document.getElementById('nf-res-peca').style.display='none';
-    document.getElementById('nf-confirmar-peca').style.display='none';
-    document.getElementById('nf-stat-peca').style.display='none';
-    analisarFotoNFPeca(e.target.result,file.type);
-  };
-  reader.readAsDataURL(file);
-}
-
+function previewNFPeca(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){var img=document.getElementById('nf-prev-peca');img.src=e.target.result;img.style.display='block';analisarFotoNFPeca(e.target.result,file.type);};reader.readAsDataURL(file);}
 async function analisarFotoNFPeca(dataUrl,mimeType){
-  var apiKey=document.getElementById('api-key-peca').value.trim();
-  if(!apiKey){statusNFPeca('Informe sua chave API do Google Gemini.',true);return;}
-  localStorage.setItem('fazenda_gemini',apiKey);
-  statusNFPeca('Analisando nota fiscal com IA...',false);
+  var apiKey=document.getElementById('api-key-peca').value.trim();if(!apiKey){statusNFPeca('Informe a chave API.',true);return;}
+  localStorage.setItem('fazenda_gemini',apiKey);statusNFPeca('Analisando com IA...',false);
   var base64=dataUrl.split(',')[1],media=mimeType||'image/jpeg';
-  var prompt='Analise a nota fiscal de pecas, servicos ou mao de obra. Responda APENAS com JSON valido sem markdown. Formato: {"fornecedor":"nome","data":"YYYY-MM-DD","itens":[{"nome":"descricao do item ou servico","val":0.0,"qtd":1}],"total":0.0}';
+  var prompt='Analise a nota de pecas ou servicos. Responda APENAS JSON. Formato: {"fornecedor":"nome","data":"YYYY-MM-DD","itens":[{"nome":"item ou servico","val":0.0}],"total":0.0}';
   var body=JSON.stringify({contents:[{parts:[{inline_data:{mime_type:media,data:base64}},{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:1000}});
-  var modelos=['https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey,'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+apiKey,'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key='+apiKey];
-  var ultimoErro='';
-  for(var i=0;i<modelos.length;i++){
-    try{
-      var res=await fetch(modelos[i],{method:'POST',headers:{'Content-Type':'application/json'},body:body});
-      if(!res.ok){var err=await res.json().catch(function(){return{};});ultimoErro=(err.error&&err.error.message)||'Erro '+res.status;continue;}
-      var data=await res.json();
-      var text=((((data.candidates||[])[0]||{}).content||{}).parts||[{}])[0].text||'';
-      if(!text){continue;}
-      var json;try{json=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){statusNFPeca('Nao consegui ler os dados. Tente foto mais nitida.',true);return;}
-      nfDadosPeca=json;mostrarResultadoNFPeca(json);return;
-    }catch(e){ultimoErro=e.message;continue;}
-  }
-  statusNFPeca('Erro: '+ultimoErro,true);
+  var modelos=['https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey,'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+apiKey];
+  for(var i=0;i<modelos.length;i++){try{var res=await fetch(modelos[i],{method:'POST',headers:{'Content-Type':'application/json'},body:body});if(!res.ok)continue;var data=await res.json();var text=((((data.candidates||[])[0]||{}).content||{}).parts||[{}])[0].text||'';if(!text)continue;var json;try{json=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){statusNFPeca('Nao consegui ler.',true);return;}nfDadosPeca=json;mostrarResultadoNFPeca(json);return;}catch(e){continue;}}
+  statusNFPeca('Erro de conexao.',true);
 }
-
-function statusNFPeca(msg,erro){
-  var el=document.getElementById('nf-stat-peca');
-  el.textContent=(erro?'Erro: ':'')+msg;
-  el.className='nfst '+(erro?'nfer':'nfok');
-  el.style.display='block';
-}
-
+function statusNFPeca(msg,erro){var el=document.getElementById('nf-stat-peca');el.textContent=(erro?'Erro: ':'')+msg;el.className='nfst '+(erro?'nfer':'nfok');el.style.display='block';}
 function mostrarResultadoNFPeca(json){
   document.getElementById('nf-stat-peca').style.display='none';
   var itens=json.itens||[];
   var linhas=[['Fornecedor',json.fornecedor||'--'],['Data',json.data?fmtD(json.data):'--']];
   if(json.nNF)linhas.push(['Numero NF',json.nNF]);
-  linhas.push(['Total da nota',json.total?fmtR(json.total):'--'],['Itens',itens.length+' item(ns)']);
+  linhas.push(['Total',json.total?fmtR(json.total):'--'],['Itens',itens.length+' item(ns)']);
   itens.forEach(function(it,i){linhas.push(['Item '+(i+1),(it.nome||'?')+' - '+fmtR(it.val)]);});
   document.getElementById('nf-items-peca').innerHTML=linhas.map(function(l){return '<div class="nfrw"><span class="nfrl">'+l[0]+'</span><span class="nfrv">'+l[1]+'</span></div>';}).join('');
-  document.getElementById('nf-res-peca').style.display='block';
-  document.getElementById('nf-confirmar-peca').style.display='flex';
+  document.getElementById('nf-res-peca').style.display='block';document.getElementById('nf-confirmar-peca').style.display='flex';
 }
-
 function confirmarNFPeca(){
-  if(!nfDadosPeca)return;
-  var itens=nfDadosPeca.itens||[];
-  if(!itens.length){alert('Nenhum item encontrado.');return;}
-  // Detecta automaticamente o tipo
-  var tipoPeca='Peca de reposicao';
-  var nomeForn=(nfDadosPeca.fornecedor||'').toLowerCase();
-  if(nomeForn.indexOf('servico')>=0||nomeForn.indexOf('manutencao')>=0||nomeForn.indexOf('oficina')>=0)tipoPeca='Mao de obra terceirizada';
-  itens.forEach(function(it){
-    db.pecas.push({
-      id:nid(),
-      data:nfDadosPeca.data||hoje(),
-      tipo:tipoPeca,
-      desc:it.nome||'Item',
-      maq:'',
-      val:Number(it.val)||0,
-      forn:nfDadosPeca.fornecedor||'',
-      obs:'Importado da NF'+(nfDadosPeca.nNF?' n.'+nfDadosPeca.nNF:'')
-    });
-  });
-  salvar();fechaM('m-nf-peca');limparNFPeca();
-  document.getElementById('xml-file-peca').value='';
-  renderPecas();renderDash();
-  if(pag!=='pecas')navTo('pecas',document.querySelectorAll('.nb')[4],'Pecas e M.O.','Maquinas e servicos');
+  if(!nfDadosPeca)return;var itens=nfDadosPeca.itens||[];if(!itens.length){alert('Nenhum item.');return;}
+  itens.forEach(function(it){salvarFirestore('pecas',{id:nid(),data:nfDadosPeca.data||hoje(),tipo:'Peca de reposicao',desc:it.nome||'Item',maq:'',val:Number(it.val)||0,forn:nfDadosPeca.fornecedor||'',obs:'NF'+(nfDadosPeca.nNF?' n.'+nfDadosPeca.nNF:'')});});
+  fechaM('m-nf-peca');limparNFPeca();
   setTimeout(function(){alert('✅ '+itens.length+' item(ns) adicionado(s)!');},300);
 }
 
 // ══ ICONE PWA ══
 function gerarIcone(){
-  try{
-    var c=document.createElement('canvas');c.width=512;c.height=512;
-    var ctx=c.getContext('2d');
-    var r=100;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(512-r,0);ctx.quadraticCurveTo(512,0,512,r);ctx.lineTo(512,512-r);ctx.quadraticCurveTo(512,512,512-r,512);ctx.lineTo(r,512);ctx.quadraticCurveTo(0,512,0,512-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
-    var g=ctx.createLinearGradient(0,0,512,512);g.addColorStop(0,'#3d8530');g.addColorStop(1,'#1a4015');ctx.fillStyle=g;ctx.fill();
-    ctx.beginPath();ctx.arc(256,256,200,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fill();
-    ctx.fillStyle='#ffffff';ctx.font='800 230px -apple-system,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FT',256,270);
-    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.fillRect(106,390,300,7);
-    var lnk=document.getElementById('pwa-icon');if(lnk)lnk.href=c.toDataURL('image/png');
-  }catch(e){}
+  try{var c=document.createElement('canvas');c.width=512;c.height=512;var ctx=c.getContext('2d');var r=100;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(512-r,0);ctx.quadraticCurveTo(512,0,512,r);ctx.lineTo(512,512-r);ctx.quadraticCurveTo(512,512,512-r,512);ctx.lineTo(r,512);ctx.quadraticCurveTo(0,512,0,512-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();var g=ctx.createLinearGradient(0,0,512,512);g.addColorStop(0,'#3d8530');g.addColorStop(1,'#1a4015');ctx.fillStyle=g;ctx.fill();ctx.beginPath();ctx.arc(256,256,200,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fill();ctx.fillStyle='#ffffff';ctx.font='800 230px -apple-system,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FT',256,270);ctx.fillStyle='rgba(255,255,255,0.25)';ctx.fillRect(106,390,300,7);var lnk=document.getElementById('pwa-icon');if(lnk)lnk.href=c.toDataURL('image/png');}catch(e){}
 }
 
+// ══ INIT ══
 (function init(){
-  carregar();
   var h=hoje(),p=h.slice(0,8)+'01';
-  document.getElementById('c-data').value=h;
-  document.getElementById('u-data').value=h;
-  document.getElementById('t-data').value=h;
-  document.getElementById('p-data').value=h;
-  document.getElementById('pec-data').value=h;
+  ['c-data','u-data','p-data','pec-data'].forEach(function(i){var el=document.getElementById(i);if(el)el.value=h;});
   document.getElementById('r-de').value=p;
   document.getElementById('r-ate').value=h;
   var k=localStorage.getItem('fazenda_gemini');
-  if(k){var el=document.getElementById('api-key');if(el)el.value=k;}
-  populaSelFunc();renderDash();populaSelIns();gerarIcone();
+  if(k){var el=document.getElementById('api-key');if(el)el.value=k;var el2=document.getElementById('api-key-peca');if(el2)el2.value=k;}
+  gerarIcone();
+  // Enter no login
+  document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')fazerLogin();});
   setTimeout(function(){var s=document.getElementById('splash');if(s){s.classList.add('hide');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},600);}},1800);
 })();
 </script>

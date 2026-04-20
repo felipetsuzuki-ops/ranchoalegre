@@ -330,22 +330,27 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
   </div>
 </div>
 
-<!-- MODAL NOVA TAREFA -->
+<!-- MODAL NOVA/EDITAR TAREFA -->
 <div class="mo" id="m-tarefa">
   <div class="ms">
     <div class="mh" onclick="fechaM('m-tarefa')"></div>
-    <div class="mtit">Nova tarefa</div>
+    <div class="mtit" id="m-tarefa-titulo">Nova tarefa</div>
+    <input type="hidden" id="t-edit-id" value="">
     <div class="fr" style="margin-bottom:10px">
-      <div class="fg" style="margin:0"><label class="fl">Data</label><input type="date" class="fi" id="t-data"></div>
       <div class="fg" style="margin:0"><label class="fl">Funcionario</label><div class="sw"><select class="fsel" id="t-func"></select></div></div>
+      <div class="fg" style="margin:0"><label class="fl">Setor</label><div class="sw"><select class="fsel" id="t-setor"><option>Lavoura</option><option>Curral</option><option>Pastagem</option><option>Manutencao</option><option>Armazem</option><option>Administracao</option><option>Outro</option></select></div></div>
     </div>
     <div class="fr" style="margin-bottom:10px">
-      <div class="fg" style="margin:0"><label class="fl">Setor</label><div class="sw"><select class="fsel" id="t-setor"><option>Lavoura</option><option>Curral</option><option>Pastagem</option><option>Manutencao</option><option>Armazem</option><option>Administracao</option><option>Outro</option></select></div></div>
-      <div class="fg" style="margin:0"><label class="fl">Status</label><div class="sw"><select class="fsel" id="t-stat"><option>Pendente</option><option>Em andamento</option><option>Concluida</option></select></div></div>
+      <div class="fg" style="margin:0"><label class="fl">Status</label><div class="sw"><select class="fsel" id="t-stat" onchange="onStatChange()"><option>Pendente</option><option>Em andamento</option><option>Concluida</option></select></div></div>
+      <div class="fg" style="margin:0"><label class="fl">Data prevista</label><input type="date" class="fi" id="t-data"></div>
+    </div>
+    <div class="fr" style="margin-bottom:10px">
+      <div class="fg" style="margin:0"><label class="fl">Data de inicio</label><input type="date" class="fi" id="t-inicio"></div>
+      <div class="fg" style="margin:0"><label class="fl">Data de termino</label><input type="date" class="fi" id="t-termino"></div>
     </div>
     <div class="fg"><label class="fl">Descricao</label><textarea class="fta" id="t-desc" placeholder="O que deve ser feito..."></textarea></div>
-    <div class="fg"><label class="fl">Observacoes</label><textarea class="fta" id="t-obs" placeholder="Resultado ou comentarios..."></textarea></div>
-    <button class="btn bg" onclick="salvarTarefa()">Adicionar tarefa</button>
+    <div class="fg"><label class="fl">Observacoes / Avaliacao</label><textarea class="fta" id="t-obs" placeholder="Resultado ou comentarios..."></textarea></div>
+    <button class="btn bg" id="t-btn-salvar" onclick="salvarTarefa()">Adicionar tarefa</button>
   </div>
 </div>
 
@@ -558,7 +563,7 @@ document.querySelectorAll('.mo').forEach(function(m){m.addEventListener('click',
 
 function abrirFab(){
   if(pag==='dash'||pag==='compras')abreM('m-compra');
-  else if(pag==='tarefas'){populaSelFunc();abreM('m-tarefa');}
+  else if(pag==='tarefas')abrirNovaTarefa();
   else if(pag==='pecas')abreM('m-peca');
   else if(pag==='pecuaria')abreM('m-pecuaria');
 }
@@ -665,12 +670,73 @@ function populaSelFunc(){
 }
 
 // ══ TAREFAS ══
+function onStatChange(){
+  var stat=document.getElementById('t-stat').value;
+  var hoje_=hoje();
+  if(stat==='Em andamento'&&!document.getElementById('t-inicio').value){
+    document.getElementById('t-inicio').value=hoje_;
+  }
+  if(stat==='Concluida'&&!document.getElementById('t-termino').value){
+    document.getElementById('t-termino').value=hoje_;
+    if(!document.getElementById('t-inicio').value)document.getElementById('t-inicio').value=hoje_;
+  }
+}
+
+function abrirNovaTarefa(){
+  document.getElementById('t-edit-id').value='';
+  document.getElementById('m-tarefa-titulo').textContent='Nova tarefa';
+  document.getElementById('t-btn-salvar').textContent='Adicionar tarefa';
+  document.getElementById('t-data').value=hoje();
+  document.getElementById('t-inicio').value='';
+  document.getElementById('t-termino').value='';
+  document.getElementById('t-desc').value='';
+  document.getElementById('t-obs').value='';
+  document.getElementById('t-stat').value='Pendente';
+  populaSelFunc();
+  abreM('m-tarefa');
+}
+
+function editarTarefa(id){
+  var t=db.tarefas.filter(function(t){return t.id===id;})[0];
+  if(!t)return;
+  populaSelFunc();
+  document.getElementById('t-edit-id').value=id;
+  document.getElementById('m-tarefa-titulo').textContent='Editar tarefa';
+  document.getElementById('t-btn-salvar').textContent='Salvar alteracoes';
+  document.getElementById('t-data').value=t.data||'';
+  document.getElementById('t-inicio').value=t.inicio||'';
+  document.getElementById('t-termino').value=t.termino||'';
+  document.getElementById('t-desc').value=t.desc||'';
+  document.getElementById('t-obs').value=t.obs||'';
+  document.getElementById('t-stat').value=t.stat||'Pendente';
+  document.getElementById('t-setor').value=t.setor||'Lavoura';
+  // set func
+  var sel=document.getElementById('t-func');
+  for(var i=0;i<sel.options.length;i++){if(parseInt(sel.options[i].value)===t.fid){sel.selectedIndex=i;break;}}
+  abreM('m-tarefa');
+}
+
 function salvarTarefa(){
-  var data=document.getElementById('t-data').value,fid=parseInt(document.getElementById('t-func').value),setor=document.getElementById('t-setor').value,stat=document.getElementById('t-stat').value,desc=document.getElementById('t-desc').value.trim(),obs=document.getElementById('t-obs').value.trim();
-  if(!data||!desc||!fid){alert('Preencha data, funcionario e descricao.');return;}
+  var editId=document.getElementById('t-edit-id').value;
+  var data=document.getElementById('t-data').value;
+  var fid=parseInt(document.getElementById('t-func').value);
+  var setor=document.getElementById('t-setor').value;
+  var stat=document.getElementById('t-stat').value;
+  var inicio=document.getElementById('t-inicio').value;
+  var termino=document.getElementById('t-termino').value;
+  var desc=document.getElementById('t-desc').value.trim();
+  var obs=document.getElementById('t-obs').value.trim();
+  if(!data||!desc||!fid){alert('Preencha data prevista, funcionario e descricao.');return;}
   var f=db.funcs.filter(function(f){return f.id===fid;})[0];
-  db.tarefas.push({id:nid(),data:data,fid:fid,fnome:f?f.nome:'',setor:setor,desc:desc,stat:stat,obs:obs});
-  salvar();document.getElementById('t-desc').value='';document.getElementById('t-obs').value='';
+  if(editId){
+    // EDITAR
+    var t=db.tarefas.filter(function(t){return String(t.id)===String(editId);})[0];
+    if(t){t.data=data;t.fid=fid;t.fnome=f?f.nome:'';t.setor=setor;t.stat=stat;t.inicio=inicio;t.termino=termino;t.desc=desc;t.obs=obs;}
+  }else{
+    // NOVA
+    db.tarefas.push({id:nid(),data:data,fid:fid,fnome:f?f.nome:'',setor:setor,desc:desc,stat:stat,inicio:inicio,termino:termino,obs:obs});
+  }
+  salvar();
   fechaM('m-tarefa');renderTarefas();renderDash();
 }
 var vistaT='lista';
@@ -681,13 +747,56 @@ function renderTarefas(){
   var el=document.getElementById('vista-tarefas');
   if(!lista.length){el.innerHTML='<div class="empty"><div class="ei">✅</div>Nenhuma tarefa</div>';return;}
   if(vistaT==='lista'){
-    el.innerHTML='<div class="card"><div style="padding:0 16px">'+lista.map(function(t){return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - '+fmtD(t.data)+'</div>'+(t.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+t.obs+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><select class="sst" onchange="mudaStat('+t.id+',this.value)"><option'+(t.stat==='Pendente'?' selected':'')+'>Pendente</option><option'+(t.stat==='Em andamento'?' selected':'')+'>Em andamento</option><option'+(t.stat==='Concluida'?' selected':'')+'>Concluida</option></select><button class="bdel" onclick="delTarefa('+t.id+')">Excluir</button></div></div>';}).join('')+'</div></div>';
+    el.innerHTML='<div class="card"><div style="padding:0 16px">'+lista.map(function(t){
+      var datas='';
+      if(t.inicio||t.termino){
+        datas='<div class="lsub" style="margin-top:2px">';
+        if(t.inicio)datas+='Inicio: '+fmtD(t.inicio);
+        if(t.inicio&&t.termino)datas+=' | ';
+        if(t.termino)datas+='Termino: '+fmtD(t.termino);
+        datas+='</div>';
+      }
+      return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - Previsto: '+fmtD(t.data)+'</div>'+datas+(t.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+t.obs+'</div>':'')+'</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">'+
+          '<select class="sst" onchange="mudaStat('+t.id+',this.value)">'+
+            '<option'+(t.stat==='Pendente'?' selected':'')+'>Pendente</option>'+
+            '<option'+(t.stat==='Em andamento'?' selected':'')+'>Em andamento</option>'+
+            '<option'+(t.stat==='Concluida'?' selected':'')+'>Concluida</option>'+
+          '</select>'+
+          '<button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
+          '<button class="bdel" onclick="delTarefa('+t.id+')">Excluir</button>'+
+        '</div></div>';
+    }).join('')+'</div></div>';
   }else{
     var cols=['Pendente','Em andamento','Concluida'],cores={'Pendente':'var(--a)','Em andamento':'var(--b)','Concluida':'var(--g2)'};
-    el.innerHTML='<div class="kanban">'+cols.map(function(s){var cards=lista.filter(function(t){return t.stat===s;});return '<div class="kcol"><div class="kct" style="color:'+cores[s]+'">'+s+' ('+cards.length+')</div>'+(cards.map(function(t){return '<div class="kcard"><div class="kct2">'+t.desc+'</div><div class="km">'+t.fnome+' - '+t.setor+'</div>'+(t.obs?'<div class="km" style="font-style:italic;margin-top:3px">'+t.obs+'</div>':'')+'</div>';}).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:16px 0">Vazio</div>')+'</div>';}).join('')+'</div>';
+    el.innerHTML='<div class="kanban">'+cols.map(function(s){
+      var cards=lista.filter(function(t){return t.stat===s;});
+      return '<div class="kcol"><div class="kct" style="color:'+cores[s]+'">'+s+' ('+cards.length+')</div>'+
+        (cards.map(function(t){
+          var datas='';
+          if(t.inicio)datas+='<div class="km">Inicio: '+fmtD(t.inicio)+'</div>';
+          if(t.termino)datas+='<div class="km">Termino: '+fmtD(t.termino)+'</div>';
+          return '<div class="kcard">'+
+            '<div class="kct2">'+t.desc+'</div>'+
+            '<div class="km">'+t.fnome+' - '+t.setor+'</div>'+
+            datas+
+            (t.obs?'<div class="km" style="font-style:italic;margin-top:3px">'+t.obs+'</div>':'')+
+            '<div style="margin-top:8px"><button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button></div>'+
+          '</div>';
+        }).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:16px 0">Vazio</div>')+
+      '</div>';
+    }).join('')+'</div>';
   }
 }
-function mudaStat(id,s){var t=db.tarefas.filter(function(t){return t.id===id;})[0];if(t){t.stat=s;salvar();renderTarefas();renderDash();}}
+function mudaStat(id,s){
+  var t=db.tarefas.filter(function(t){return t.id===id;})[0];
+  if(t){
+    t.stat=s;
+    if(s==='Em andamento'&&!t.inicio)t.inicio=hoje();
+    if(s==='Concluida'){if(!t.inicio)t.inicio=hoje();if(!t.termino)t.termino=hoje();}
+    salvar();renderTarefas();renderDash();
+  }
+}
 function delTarefa(id){if(!confirm('Excluir?'))return;db.tarefas=db.tarefas.filter(function(t){return t.id!==id;});salvar();renderTarefas();renderDash();}
 
 // ══ PECAS E MAO DE OBRA ══
@@ -825,7 +934,7 @@ function expRelatorio(){
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(comp.map(function(c){return {'Data':fmtD(c.data),'Safra':c.safra||'','Cultura':c.cultura||'','Insumo':c.nome,'Cat':c.cat,'Qtd':c.qtd,'Un':c.un,'Val':c.val,'Total':parseFloat((c.qtd*c.val).toFixed(2)),'Forn':c.forn};})),'Compras');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.pecas.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Descricao':p.desc,'Maquina':p.maq,'Valor':p.val,'Fornecedor':p.forn};})),'Pecas e MO');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(db.pecuaria.map(function(p){return {'Data':fmtD(p.data),'Tipo':p.tipo,'Detalhes':(p.sexo||'')+(p.idAnimal?' '+p.idAnimal:'')+(p.vacas!==undefined?'V:'+p.vacas+' B:'+p.bezerros+' T:'+p.touros:''),'Obs':p.obs};})),'Pecuaria');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(tar.map(function(t){return {'Data':fmtD(t.data),'Funcionario':t.fnome,'Setor':t.setor,'Descricao':t.desc,'Status':t.stat,'Obs':t.obs};})),'Tarefas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(tar.map(function(t){return {'Data prevista':fmtD(t.data),'Inicio':fmtD(t.inicio),'Termino':fmtD(t.termino),'Funcionario':t.fnome,'Setor':t.setor,'Descricao':t.desc,'Status':t.stat,'Obs':t.obs};})),'Tarefas');
   XLSX.writeFile(wb,'relatorio_completo.xlsx');
 }
 

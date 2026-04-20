@@ -47,9 +47,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 #pages{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .page{display:none;padding:16px 16px 32px}
 .page.active{display:block}
-.bnav{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--br);display:flex;padding-bottom:var(--sb);flex-shrink:0;z-index:20;overflow-x:auto}
-.nb{flex:1;min-width:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 2px 5px;font-size:9px;font-weight:600;color:var(--tx3);background:none;border:none;cursor:pointer;gap:2px;white-space:nowrap}
-.nb .ni{font-size:20px}
+.bnav{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--br);display:flex;padding-bottom:var(--sb);flex-shrink:0;z-index:20;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nb{flex:1;min-width:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 2px 6px;font-size:9px;font-weight:600;color:var(--tx3);background:none;border:none;cursor:pointer;gap:3px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.nb .ni{font-size:22px;line-height:1;display:block}
 .nb.active{color:var(--g)}
 .card{background:var(--card);border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.07);overflow:hidden;margin-bottom:14px}
 .ch{padding:13px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between}
@@ -270,9 +270,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <button class="nb" onclick="navTo('compras',this,'Compras','Insumos')"><span class="ni">🛒</span>Compras</button>
     <button class="nb" onclick="navTo('estoque',this,'Estoque','Saldo atual')"><span class="ni">📦</span>Estoque</button>
     <button class="nb" onclick="navTo('tarefas',this,'Tarefas','Funcionarios')"><span class="ni">✅</span>Tarefas</button>
-    <button class="nb" onclick="navTo('pecas',this,'Pecas e M.O.','Maquinas e servicos')"><span class="ni">🔧</span>Pecas/MO</button>
+    <button class="nb" onclick="navTo('pecas',this,'Pecas e M.O.','Maquinas e servicos')"><span class="ni">🔧</span>Pecas</button>
     <button class="nb" onclick="navTo('pecuaria',this,'Pecuaria','Rebanho')"><span class="ni">🐄</span>Pecuaria</button>
-    <button class="nb" onclick="navTo('rel',this,'Relatorios','Analise')"><span class="ni">📈</span>Relatorios</button>
+    <button class="nb" onclick="navTo('rel',this,'Relatorios','Analise')"><span class="ni">📈</span>Relat.</button>
   </nav>
 </div>
 

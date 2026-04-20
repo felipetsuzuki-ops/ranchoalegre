@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#2a5c1f">
 <title>Assessor</title>
 <link id="pwa-icon" rel="apple-touch-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 :root{--g:#2a5c1f;--g2:#3d8530;--gl:#e8f5e2;--t:#9b6031;--tl:#fdf0e5;--a:#c8920a;--al:#fff8e0;--d:#d63031;--dl:#ffeaea;--b:#1a5ec8;--bl:#e3f0ff;--p:#7c3aed;--pl:#f3f0ff;--bg:#f2f4f0;--card:#fff;--tx:#1a1f16;--tx2:#6b7566;--tx3:#a8b0a2;--br:#e0e5db;--st:env(safe-area-inset-top,44px);--sb:env(safe-area-inset-bottom,20px)}
@@ -747,9 +748,13 @@ function gerarIcone(){try{var c=document.createElement('canvas');c.width=512;c.h
   gerarIcone();
   document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')fazerLogin();});
 
-  // Renderiza painel imediatamente com dados vazios
+  // Carrega cache local imediatamente
+  var cached=localStorage.getItem('fazenda_cache');
+  if(cached){try{var c=JSON.parse(cached);Object.keys(c).forEach(function(k){appDB[k]=c[k];});}catch(e){}}
   renderDash();
   renderChuva();
+  populaSelIns();
+  populaSelFunc();
 
   // Mostra splash e carrega Firebase so depois que tela pintou
   setTimeout(function(){
@@ -757,105 +762,199 @@ function gerarIcone(){try{var c=document.createElement('canvas');c.width=512;c.h
     if(s){s.classList.add('hide');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},400);}
   },600);
 
-  // Carrega Firebase so apos usuario ver a tela
-  setTimeout(function(){
-    function loadScript(src, cb){
-      var s=document.createElement('script');
-      s.src=src; s.onload=cb;
-      document.head.appendChild(s);
-    }
-    loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js', function(){
-      loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js', function(){
-        loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js', function(){
-          initFirebase();
-        });
-      });
-    });
-  }, 1000);
+  // Inicia Firebase REST (sem SDK pesado)
+  setTimeout(initFirebase, 200);
 })();
 
 function initFirebase(){
-  firebase.initializeApp({
-    apiKey:"AIzaSyCyy42piv40UerRxGa-LYQuPKWeE8aovjs",
-    authDomain:"fazenda-felipe.firebaseapp.com",
-    projectId:"fazenda-felipe",
-    storageBucket:"fazenda-felipe.firebasestorage.app",
-    messagingSenderId:"956769614970",
-    appId:"1:956769614970:web:187d3e51be387b0b95cfc3"
-  });
-  var auth=firebase.auth();
-  var firestore=firebase.firestore();
-  firestore.enablePersistence({synchronizeTabs:true}).catch(function(){});
-  var unsubscribers=[];
+  var API_KEY='AIzaSyCyy42piv40UerRxGa-LYQuPKWeE8aovjs';
+  var PROJECT='fazenda-felipe';
+  var BASE='https://firestore.googleapis.com/v1/projects/'+PROJECT+'/databases/(default)/documents';
+  var AUTH_BASE='https://identitytoolkit.googleapis.com/v1';
+  var idToken=localStorage.getItem('fb_token');
+  var tokenExpiry=parseInt(localStorage.getItem('fb_expiry')||'0');
+  var refreshToken=localStorage.getItem('fb_refresh');
+  var uid=localStorage.getItem('fb_uid');
 
   function setSyncStatus(s){var d=document.getElementById('sync-dot');if(!d)return;d.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');}
   window.setSyncStatus=setSyncStatus;
 
-  firebase.auth().onAuthStateChanged(function(user){
-    if(user){
-      window.currentUser=user;
-      document.getElementById('login-screen').classList.add('hide');
-      iniciarSync(user.uid);
-    }else{
-      window.currentUser=null;
-      document.getElementById('login-screen').classList.remove('hide');
-      unsubscribers.forEach(function(u){u();});unsubscribers=[];
-    }
-  });
+  // Check if token valid
+  function tokenValido(){return idToken&&Date.now()<tokenExpiry-60000;}
 
-  function iniciarSync(uid){
-    setSyncStatus('syncing');
-    unsubscribers.forEach(function(u){u();});unsubscribers=[];
-    var cols=['compras','usos','tarefas','funcs','pecas','pecuaria','chuvas'],prontas={};
-    cols.forEach(function(col){
-      var unsub=firestore.collection('usuarios').doc(uid).collection(col).onSnapshot(function(snap){
-        appDB[col]=[];snap.forEach(function(d){appDB[col].push(d.data());});
-        prontas[col]=true;
-        if(cols.every(function(c){return prontas[c];}))setSyncStatus('ok');
-        renderPag(window.pagAtual||'dash');
-        if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
-        populaSelIns();populaSelFunc();
-      },function(){setSyncStatus('offline');});
-      unsubscribers.push(unsub);
-    });
+  // Refresh token
+  async function refreshIdToken(){
+    if(!refreshToken)return false;
+    try{
+      var r=await fetch('https://securetoken.googleapis.com/v1/token?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({grant_type:'refresh_token',refresh_token:refreshToken})});
+      var d=await r.json();
+      if(d.id_token){
+        idToken=d.id_token;refreshToken=d.refresh_token;uid=d.user_id;
+        var exp=Date.now()+parseInt(d.expires_in)*1000;
+        localStorage.setItem('fb_token',idToken);localStorage.setItem('fb_expiry',exp);localStorage.setItem('fb_refresh',refreshToken);localStorage.setItem('fb_uid',uid);
+        tokenExpiry=exp;return true;
+      }
+    }catch(e){}
+    return false;
   }
 
-  window.salvarFirestore=function(col,item){
-    if(!window.currentUser)return;
+  async function getToken(){
+    if(tokenValido())return idToken;
+    if(await refreshIdToken())return idToken;
+    return null;
+  }
+
+  // Convert Firestore doc to plain object
+  function fsToObj(doc){
+    if(!doc||!doc.fields)return null;
+    var obj={};
+    Object.keys(doc.fields).forEach(function(k){
+      var v=doc.fields[k];
+      if(v.stringValue!==undefined)obj[k]=v.stringValue;
+      else if(v.integerValue!==undefined)obj[k]=Number(v.integerValue);
+      else if(v.doubleValue!==undefined)obj[k]=Number(v.doubleValue);
+      else if(v.booleanValue!==undefined)obj[k]=v.booleanValue;
+      else if(v.nullValue!==undefined)obj[k]=null;
+    });
+    return obj;
+  }
+
+  // Convert plain object to Firestore fields
+  function objToFs(obj){
+    var fields={};
+    Object.keys(obj).forEach(function(k){
+      var v=obj[k];
+      if(v===null||v===undefined)fields[k]={nullValue:null};
+      else if(typeof v==='boolean')fields[k]={booleanValue:v};
+      else if(typeof v==='number'){
+        if(Number.isInteger(v))fields[k]={integerValue:String(v)};
+        else fields[k]={doubleValue:v};
+      }
+      else fields[k]={stringValue:String(v)};
+    });
+    return {fields:fields};
+  }
+
+  // Load all data from Firestore
+  async function carregarDados(){
+    var token=await getToken();
+    if(!token){showLogin();return;}
     setSyncStatus('syncing');
-    firestore.collection('usuarios').doc(window.currentUser.uid).collection(col).doc(String(item.id)).set(item)
-      .then(function(){setSyncStatus('ok');}).catch(function(e){setSyncStatus('offline');console.error(e);});
-  };
-  window.deletarFirestore=function(col,id){
-    if(!window.currentUser)return;
+    var cols=['compras','usos','tarefas','funcs','pecas','pecuaria','chuvas'];
+    try{
+      await Promise.all(cols.map(async function(col){
+        var url=BASE+'/usuarios/'+uid+'/'+col+'?pageSize=500';
+        var r=await fetch(url,{headers:{'Authorization':'Bearer '+token}});
+        var d=await r.json();
+        appDB[col]=(d.documents||[]).map(function(doc){return fsToObj(doc);}).filter(Boolean);
+      }));
+      try{localStorage.setItem('fazenda_cache',JSON.stringify(appDB));}catch(e){}
+      setSyncStatus('ok');
+      renderPag(window.pagAtual||'dash');
+      if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
+      populaSelIns();populaSelFunc();
+    }catch(e){
+      setSyncStatus('offline');
+      // usa cache se disponivel
+      var cache=localStorage.getItem('fazenda_cache');
+      if(cache){try{var c=JSON.parse(cache);Object.keys(c).forEach(function(k){appDB[k]=c[k];});}catch(ex){}}
+    }
+  }
+
+  // Show/hide login
+  function showLogin(){
+    document.getElementById('login-screen').classList.remove('hide');
+    window.currentUser=null;uid=null;
+  }
+  function hideLogin(){document.getElementById('login-screen').classList.add('hide');}
+
+  // Check auto login
+  async function checkAuth(){
+    if(!refreshToken){showLogin();return;}
+    var ok=await refreshIdToken();
+    if(ok){hideLogin();window.currentUser={uid:uid};carregarDados();}
+    else{showLogin();}
+  }
+
+  // Salvar no Firestore
+  window.salvarFirestore=async function(col,item){
+    var token=await getToken();if(!token)return;
     setSyncStatus('syncing');
-    firestore.collection('usuarios').doc(window.currentUser.uid).collection(col).doc(String(id)).delete()
-      .then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('offline');});
+    try{
+      var url=BASE+'/usuarios/'+uid+'/'+col+'/'+String(item.id);
+      await fetch(url+'?updateMask.fieldPaths='+Object.keys(item).join('&updateMask.fieldPaths='),{method:'PATCH',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(objToFs(item))});
+      setSyncStatus('ok');
+      // update local cache
+      if(!appDB[col])appDB[col]=[];
+      var idx=appDB[col].findIndex(function(x){return String(x.id)===String(item.id);});
+      if(idx>=0)appDB[col][idx]=item;else appDB[col].push(item);
+      try{localStorage.setItem('fazenda_cache',JSON.stringify(appDB));}catch(e){}
+    }catch(e){setSyncStatus('offline');}
   };
-  window.fazerLogin=function(){
+
+  // Deletar do Firestore
+  window.deletarFirestore=async function(col,id){
+    var token=await getToken();if(!token)return;
+    setSyncStatus('syncing');
+    try{
+      await fetch(BASE+'/usuarios/'+uid+'/'+col+'/'+String(id),{method:'DELETE',headers:{'Authorization':'Bearer '+token}});
+      setSyncStatus('ok');
+      if(appDB[col])appDB[col]=appDB[col].filter(function(x){return String(x.id)!==String(id);});
+      try{localStorage.setItem('fazenda_cache',JSON.stringify(appDB));}catch(e){}
+      renderPag(window.pagAtual||'dash');
+      if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
+      populaSelIns();populaSelFunc();
+    }catch(e){setSyncStatus('offline');}
+  };
+
+  // Login
+  window.fazerLogin=async function(){
     var e=document.getElementById('login-email').value.trim(),p=document.getElementById('login-pass').value;
     if(!e||!p){document.getElementById('login-err').textContent='Preencha email e senha.';return;}
     document.getElementById('login-loading').style.display='block';
     document.getElementById('login-err').textContent='';
-    auth.signInWithEmailAndPassword(e,p).catch(function(err){
-      document.getElementById('login-loading').style.display='none';
-      document.getElementById('login-err').textContent=err.code==='auth/invalid-credential'?'Email ou senha incorretos.':err.code==='auth/too-many-requests'?'Muitas tentativas.':'Erro: '+err.message;
-    });
+    try{
+      var r=await fetch(AUTH_BASE+'/accounts:signInWithPassword?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,returnSecureToken:true})});
+      var d=await r.json();
+      if(d.error){document.getElementById('login-loading').style.display='none';document.getElementById('login-err').textContent=d.error.message==='INVALID_LOGIN_CREDENTIALS'?'Email ou senha incorretos.':'Erro: '+d.error.message;return;}
+      idToken=d.idToken;refreshToken=d.refreshToken;uid=d.localId;
+      var exp=Date.now()+parseInt(d.expiresIn)*1000;
+      localStorage.setItem('fb_token',idToken);localStorage.setItem('fb_expiry',exp);localStorage.setItem('fb_refresh',refreshToken);localStorage.setItem('fb_uid',uid);
+      tokenExpiry=exp;window.currentUser={uid:uid};
+      hideLogin();carregarDados();
+    }catch(e){document.getElementById('login-loading').style.display='none';document.getElementById('login-err').textContent='Erro de conexao.';}
   };
-  window.criarConta=function(){
+
+  // Criar conta
+  window.criarConta=async function(){
     var e=document.getElementById('login-email').value.trim(),p=document.getElementById('login-pass').value;
     if(!e||!p){document.getElementById('login-err').textContent='Preencha email e senha.';return;}
     if(p.length<6){document.getElementById('login-err').textContent='Senha precisa ter 6+ caracteres.';return;}
     document.getElementById('login-loading').style.display='block';
     document.getElementById('login-err').textContent='';
-    auth.createUserWithEmailAndPassword(e,p).catch(function(err){
-      document.getElementById('login-loading').style.display='none';
-      document.getElementById('login-err').textContent=err.code==='auth/email-already-in-use'?'Email ja em uso.':'Erro: '+err.message;
-    });
+    try{
+      var r=await fetch(AUTH_BASE+'/accounts:signUp?key='+API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,returnSecureToken:true})});
+      var d=await r.json();
+      if(d.error){document.getElementById('login-loading').style.display='none';document.getElementById('login-err').textContent=d.error.message==='EMAIL_EXISTS'?'Email ja em uso.':'Erro: '+d.error.message;return;}
+      idToken=d.idToken;refreshToken=d.refreshToken;uid=d.localId;
+      var exp=Date.now()+parseInt(d.expiresIn)*1000;
+      localStorage.setItem('fb_token',idToken);localStorage.setItem('fb_expiry',exp);localStorage.setItem('fb_refresh',refreshToken);localStorage.setItem('fb_uid',uid);
+      tokenExpiry=exp;window.currentUser={uid:uid};
+      hideLogin();carregarDados();
+    }catch(e){document.getElementById('login-loading').style.display='none';document.getElementById('login-err').textContent='Erro de conexao.';}
   };
-  window.fazerLogout=function(){if(confirm('Deseja sair?'))auth.signOut();};
+
+  // Logout
+  window.fazerLogout=function(){
+    if(!confirm('Deseja sair?'))return;
+    localStorage.removeItem('fb_token');localStorage.removeItem('fb_expiry');localStorage.removeItem('fb_refresh');localStorage.removeItem('fb_uid');
+    idToken=null;refreshToken=null;uid=null;window.currentUser=null;
+    showLogin();
+  };
+
+  // Iniciar
+  checkAuth();
 }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>

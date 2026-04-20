@@ -747,6 +747,10 @@ function gerarIcone(){try{var c=document.createElement('canvas');c.width=512;c.h
   gerarIcone();
   document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')fazerLogin();});
 
+  // Renderiza painel imediatamente com dados vazios
+  renderDash();
+  renderChuva();
+
   // Mostra splash e carrega Firebase so depois que tela pintou
   setTimeout(function(){
     var s=document.getElementById('splash');

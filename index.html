@@ -706,6 +706,12 @@ function statusNFPeca(msg,erro){var el=document.getElementById('nf-stat-peca');e
 function mostrarResultadoNFPeca(json){document.getElementById('nf-stat-peca').style.display='none';var itens=json.itens||[];var linhas=[['Fornecedor',json.fornecedor||'--'],['Data',json.data?fmtD(json.data):'--']];if(json.nNF)linhas.push(['NF',json.nNF]);linhas.push(['Total',json.total?fmtR(json.total):'--'],['Itens',itens.length+' item(ns)']);itens.forEach(function(it,i){linhas.push(['Item '+(i+1),(it.nome||'?')+' - '+fmtR(it.val)]);});document.getElementById('nf-items-peca').innerHTML=linhas.map(function(l){return '<div class="nfrw"><span class="nfrl">'+l[0]+'</span><span class="nfrv">'+l[1]+'</span></div>';}).join('');document.getElementById('nf-res-peca').style.display='block';document.getElementById('nf-confirmar-peca').style.display='flex';}
 function confirmarNFPeca(){if(!nfDadosPeca)return;var itens=nfDadosPeca.itens||[];if(!itens.length){alert('Nenhum item.');return;}itens.forEach(function(it){salvarFS('pecas',{id:nid(),data:nfDadosPeca.data||hoje(),tipo:'Peca de reposicao',desc:it.nome||'Item',maq:'',val:Number(it.val)||0,forn:nfDadosPeca.fornecedor||'',obs:'NF'+(nfDadosPeca.nNF?' n.'+nfDadosPeca.nNF:'')});});fechaM('m-nf-peca');limparNFPeca();setTimeout(function(){alert('item(ns) adicionado(s)!');},300);}
 
+function delChuvaHist(id){
+  if(!confirm('Excluir este registro?'))return;
+  deletarFS('chuvas',id);
+  setTimeout(function(){renderHistChuva();renderChuva();},600);
+}
+
 function abrirHistChuva(){
   // Populate month selector with all months that have data + last 6 months
   var sel=document.getElementById('hist-mes');

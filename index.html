@@ -881,12 +881,21 @@ function initFirebase(){
   }
   function hideLogin(){document.getElementById('login-screen').classList.add('hide');}
 
-  // Check auto login
-  async function checkAuth(){
+  // Check auto login - mostra login IMEDIATAMENTE, autentica em background
+  function checkAuth(){
     if(!refreshToken){showLogin();return;}
-    var ok=await refreshIdToken();
-    if(ok){hideLogin();window.currentUser={uid:uid};carregarDados();}
-    else{showLogin();}
+    // Se tem token valido, esconde login imediatamente
+    if(tokenValido()){
+      hideLogin();
+      window.currentUser={uid:uid};
+      carregarDados();
+      return;
+    }
+    // Token expirado - mostra login enquanto tenta renovar em background
+    showLogin();
+    refreshIdToken().then(function(ok){
+      if(ok){hideLogin();window.currentUser={uid:uid};carregarDados();}
+    });
   }
 
   // Salvar no Firestore

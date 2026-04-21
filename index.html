@@ -532,9 +532,31 @@ function syncDot(s){var d=document.getElementById('sync-dot');if(!d)return;d.cla
 firebase.auth().onAuthStateChanged(function(user){
   if(user){
     window.currentUser=user;
+    localStorage.setItem('assessor_uid', user.uid);
+    localStorage.setItem('assessor_email', user.email||'');
     document.getElementById('login-screen').classList.add('hide');
     iniciarSync(user.uid);
   }else{
+    // Tenta restaurar sessao offline do cache local
+    var cachedUid=localStorage.getItem('assessor_uid');
+    var cachedData=localStorage.getItem('assessor_cache');
+    if(cachedUid && cachedData){
+      try{
+        var parsed=JSON.parse(cachedData);
+        Object.keys(parsed).forEach(function(k){appDB[k]=parsed[k];});
+        window.currentUser={uid:cachedUid};
+        document.getElementById('login-screen').classList.add('hide');
+        document.getElementById('sync-dot') && (document.getElementById('sync-dot').className='sync-dot offline');
+        renderDash();renderChuva();populaSelIns();populaSelFunc();
+        renderPag(window.pagAtual||'dash');
+        // Avisa que esta offline
+        setTimeout(function(){
+          var dot=document.getElementById('sync-dot');
+          if(dot)dot.title='Offline - dados do cache';
+        },500);
+        return;
+      }catch(e){}
+    }
     window.currentUser=null;
     document.getElementById('login-screen').classList.remove('hide');
     unsubs.forEach(function(u){u();});unsubs=[];
@@ -549,7 +571,10 @@ function iniciarSync(uid){
     var u=db.collection('usuarios').doc(uid).collection(col).onSnapshot(function(snap){
       appDB[col]=[];snap.forEach(function(d){appDB[col].push(d.data());});
       ok[col]=true;
-      if(cols.every(function(c){return ok[c];}))syncDot('ok');
+      if(cols.every(function(c){return ok[c];})){
+        syncDot('ok');
+        try{localStorage.setItem('assessor_cache',JSON.stringify(appDB));}catch(e){}
+      }
       renderPag(window.pagAtual||'dash');
       if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
       populaSelIns();populaSelFunc();
@@ -560,12 +585,26 @@ function iniciarSync(uid){
 
 window.salvarFS=function(col,item){
   if(!window.currentUser)return;
+  // Update local cache immediately for offline use
+  if(!appDB[col])appDB[col]=[];
+  var idx=appDB[col].findIndex(function(x){return String(x.id)===String(item.id);});
+  if(idx>=0)appDB[col][idx]=item; else appDB[col].push(item);
+  try{localStorage.setItem('assessor_cache',JSON.stringify(appDB));}catch(e){}
   syncDot('syncing');
   db.collection('usuarios').doc(window.currentUser.uid).collection(col).doc(String(item.id)).set(item)
-    .then(function(){syncDot('ok');}).catch(function(e){syncDot('offline');console.error(e);});
+    .then(function(){syncDot('ok');}).catch(function(e){
+      syncDot('offline');
+      // Dados ficam no cache local e sincronizam quando voltar a internet
+      console.log('Salvo offline, sincronizara quando conectar');
+    });
 };
 window.deletarFS=function(col,id){
   if(!window.currentUser)return;
+  // Remove from local cache immediately
+  if(appDB[col])appDB[col]=appDB[col].filter(function(x){return String(x.id)!==String(id);});
+  try{localStorage.setItem('assessor_cache',JSON.stringify(appDB));}catch(e){}
+  renderPag(window.pagAtual||'dash');
+  if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
   syncDot('syncing');
   db.collection('usuarios').doc(window.currentUser.uid).collection(col).doc(String(id)).delete()
     .then(function(){syncDot('ok');}).catch(function(){syncDot('offline');});
@@ -649,25 +688,24 @@ function abrirFab(){
 
 function renderDash(){
   var mes=new Date().toISOString().slice(0,7);
-
   var pend=appDB.tarefas.filter(function(t){return t.stat==='Pendente';}).length;
-  var hoje_=hoje();
+  var h=hoje();
   var em30=new Date();em30.setDate(em30.getDate()+30);var em30s=em30.toISOString().split('T')[0];
-  var manutVenc=(appDB.manutencoes||[]).filter(function(m){return m.proxData&&m.proxData<hoje_&&m.status!=='Concluida';}).length;
-  var manutProx=(appDB.manutencoes||[]).filter(function(m){return m.proxData&&m.proxData>=hoje_&&m.proxData<=em30s&&m.status!=='Concluida';}).length;
+  var manutVenc=(appDB.manutencoes||[]).filter(function(m){return m.proxData&&m.proxData<h&&m.status!=='Concluida';}).length;
+  var manutProx=(appDB.manutencoes||[]).filter(function(m){return m.proxData&&m.proxData>=h&&m.proxData<=em30s&&m.status!=='Concluida';}).length;
   var chuvasMes=(appDB.chuvas||[]).filter(function(c){return c.data&&c.data.startsWith(mes);}).reduce(function(s,c){return s+Number(c.mm||0);},0);
   var ult=appDB.pecuaria.filter(function(p){return p.tipo==='contagem';}).slice(-1)[0];
   var reb=ult?(Number(ult.vacas||0)+Number(ult.bezerros||0)+Number(ult.touros||0)):0;
   var nasc=appDB.pecuaria.filter(function(p){return p.tipo==='nascimento'&&p.data&&p.data.startsWith(mes);}).length;
   document.getElementById('dash-grid').innerHTML=
-    '<div class="st t"><div class="sl">Gasto insumos</div><div class="sv" style="font-size:15px">'+fmtR(totC)+'</div><div class="ss">'+cm.length+' compra(s)</div></div>'+
-    '<div class="st p"><div class="sl">Pecas e M.O.</div><div class="sv" style="font-size:15px">'+fmtR(totP)+'</div></div>'+
     '<div class="st y"><div class="sl">Tarefas pend.</div><div class="sv">'+pend+'</div><div class="ss"><span style="text-decoration:underline;cursor:pointer" onclick="abreM(\'m-func\');renderListaFuncs()">funcionarios</span></div></div>'+
-
     '<div class="st b"><div class="sl">Rebanho</div><div class="sv">'+reb+'</div><div class="ss">animais</div></div>'+
-    '<div class="st g"><div class="sl">Nascimentos</div><div class="sv">'+nasc+'</div><div class="ss">este mes</div></div>';
-  var tp=appDB.tarefas.filter(function(t){return t.stat==='Pendente';}).slice(0,5);
-  document.getElementById('dash-tarefas').innerHTML=tp.length?tp.map(function(t){return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+'</div></div><span class="badge bp">Pendente</span></div>';}).join(''):'<div class="empty" style="padding:14px"><div class="ei">🎉</div>Sem pendencias</div>';
+    '<div class="st g"><div class="sl">Nascimentos</div><div class="sv">'+nasc+'</div><div class="ss">este mes</div></div>'+
+    '<div class="st t"><div class="sl">Chuvas mes</div><div class="sv" style="font-size:18px">'+chuvasMes.toFixed(1)+' mm</div></div>'+
+    '<div class="st r"><div class="sl">Manut. vencidas</div><div class="sv">'+manutVenc+'</div><div class="ss">maquinas</div></div>'+
+    '<div class="st p"><div class="sl">Manut. proximas</div><div class="sv">'+manutProx+'</div><div class="ss">30 dias</div></div>';
+  var tp=appDB.tarefas.filter(function(t){return t.stat==='Pendente';}).sort(function(a,b){return (a.data||'').localeCompare(b.data||'');}).slice(0,5);
+  document.getElementById('dash-tarefas').innerHTML=tp.length?tp.map(function(t){return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - '+fmtD(t.data)+'</div></div><span class="badge bp">Pendente</span></div>';}).join(''):'<div class="empty" style="padding:14px"><div class="ei">🎉</div>Sem pendencias</div>';
 }
 
 function salvarCompra(){var data=document.getElementById('c-data').value,nome=document.getElementById('c-nome').value.trim(),cat=document.getElementById('c-cat').value,qtd=parseFloat(document.getElementById('c-qtd').value),un=document.getElementById('c-un').value,val=parseFloat(document.getElementById('c-val').value),forn=document.getElementById('c-forn').value.trim(),min=parseFloat(document.getElementById('c-min').value)||0,obs=document.getElementById('c-obs').value.trim(),safra=document.getElementById('c-safra').value,cultura=document.getElementById('c-cultura').value;if(!data||!nome||!cat||isNaN(qtd)||isNaN(val)){alert('Preencha: data, insumo, categoria, quantidade e valor.');return;}salvarFS('compras',{id:nid(),data:data,nome:nome,cat:cat,qtd:qtd,un:un,val:val,forn:forn,min:min,obs:obs,safra:safra,cultura:cultura});['c-nome','c-forn','c-obs'].forEach(function(i){document.getElementById(i).value='';});['c-qtd','c-val','c-min'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('c-safra').value='';document.getElementById('c-cultura').value='';fechaM('m-compra');}

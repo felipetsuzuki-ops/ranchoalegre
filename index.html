@@ -301,9 +301,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 <div class="mo" id="m-compra"><div class="ms">
   <div class="mh" onclick="fechaM('m-compra')"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-    <div class="mtit" style="margin:0">Nova compra</div>
-    <button onclick="fechaM('m-compra');abreM('m-nf')" style="background:var(--gl);color:var(--g);border:1.5px solid var(--g2);font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer">Importar NF</button>
+    <div class="mtit" style="margin:0" id="m-compra-titulo">Nova compra</div>
+    <button id="m-compra-nf-btn" onclick="fechaM('m-compra');abreM('m-nf')" style="background:var(--gl);color:var(--g);border:1.5px solid var(--g2);font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer">Importar NF</button>
   </div>
+  <input type="hidden" id="c-edit-id" value="">
   <div class="fr" style="margin-bottom:10px">
     <div class="fg" style="margin:0"><label class="fl">Data</label><input type="date" class="fi" id="c-data"></div>
     <div class="fg" style="margin:0"><label class="fl">Categoria</label><div class="sw"><select class="fsel" id="c-cat"><option value="">Selecione</option><option>Defensivo</option><option>Fertilizante</option><option>Racao</option><option>Medicamento veterinario</option><option>Combustivel</option><option>Semente</option><option>Equipamento</option><option>Outros</option></select></div></div>
@@ -323,7 +324,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <div class="fg" style="margin:0"><label class="fl">Fornecedor</label><input type="text" class="fi" id="c-forn" placeholder="Nome"></div>
   </div>
   <div class="fg"><label class="fl">Obs</label><textarea class="fta" id="c-obs" placeholder="Opcional..."></textarea></div>
-  <button class="btn bg" onclick="salvarCompra()">Registrar compra</button>
+  <button class="btn bg" id="c-btn-salvar" onclick="salvarCompra()">Registrar compra</button>
 </div></div>
 
 <!-- MODAL NF -->
@@ -680,10 +681,10 @@ function setTabComp(tab){
 }
 
 function abrirFab(){
-  if(pag==='dash')abreM('m-compra');
+  if(pag==='dash')abrirNovaCompra();
   else if(pag==='compras'){
     var tabAtiva=document.getElementById('tab-pec').classList.contains('active');
-    if(tabAtiva)abreM('m-peca'); else abreM('m-compra');
+    if(tabAtiva)abreM('m-peca'); else abrirNovaCompra();
   }
   else if(pag==='tarefas')abrirNovaTarefa();
   else if(pag==='manut')abreM('m-manut');
@@ -711,6 +712,41 @@ function renderDash(){
     '<div class="st p"><div class="sl">Manut. proximas</div><div class="sv">'+manutProx+'</div><div class="ss">30 dias</div></div>';
   var tp=appDB.tarefas.filter(function(t){return t.stat==='Pendente';}).sort(function(a,b){var da=a.inicio||a.data||'';var db2=b.inicio||b.data||'';return da.localeCompare(db2);}).slice(0,5);
   document.getElementById('dash-tarefas').innerHTML=tp.length?tp.map(function(t){return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - '+fmtD(t.data)+'</div></div><span class="badge bp">Pendente</span></div>';}).join(''):'<div class="empty" style="padding:14px"><div class="ei">🎉</div>Sem pendencias</div>';
+}
+
+function abrirNovaCompra(){
+  document.getElementById('c-edit-id').value='';
+  document.getElementById('m-compra-titulo').textContent='Nova compra';
+  document.getElementById('c-btn-salvar').textContent='Registrar compra';
+  document.getElementById('m-compra-nf-btn').style.display='';
+  document.getElementById('c-data').value=hoje();
+  ['c-nome','c-forn','c-obs'].forEach(function(i){document.getElementById(i).value='';});
+  ['c-qtd','c-val','c-min'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('c-cat').value='';
+  document.getElementById('c-safra').value='';
+  document.getElementById('c-cultura').value='';
+  abreM('m-compra');
+}
+
+function editarCompra(id){
+  var c=appDB.compras.filter(function(c){return String(c.id)===String(id);})[0];
+  if(!c)return;
+  document.getElementById('c-edit-id').value=id;
+  document.getElementById('m-compra-titulo').textContent='Editar compra';
+  document.getElementById('c-btn-salvar').textContent='Salvar alteracoes';
+  document.getElementById('m-compra-nf-btn').style.display='none';
+  document.getElementById('c-data').value=c.data||'';
+  document.getElementById('c-nome').value=c.nome||'';
+  document.getElementById('c-cat').value=c.cat||'';
+  document.getElementById('c-safra').value=c.safra||'';
+  document.getElementById('c-cultura').value=c.cultura||'';
+  document.getElementById('c-qtd').value=c.qtd||'';
+  document.getElementById('c-un').value=c.un||'kg';
+  document.getElementById('c-val').value=c.val||'';
+  document.getElementById('c-min').value=c.min||'';
+  document.getElementById('c-forn').value=c.forn||'';
+  document.getElementById('c-obs').value=c.obs||'';
+  abreM('m-compra');
 }
 
 function salvarCompra(){var data=document.getElementById('c-data').value,nome=document.getElementById('c-nome').value.trim(),cat=document.getElementById('c-cat').value,qtd=parseFloat(document.getElementById('c-qtd').value),un=document.getElementById('c-un').value,val=parseFloat(document.getElementById('c-val').value),forn=document.getElementById('c-forn').value.trim(),min=parseFloat(document.getElementById('c-min').value)||0,obs=document.getElementById('c-obs').value.trim(),safra=document.getElementById('c-safra').value,cultura=document.getElementById('c-cultura').value;if(!data||!nome||!cat||isNaN(qtd)||isNaN(val)){alert('Preencha: data, insumo, categoria, quantidade e valor.');return;}salvarFS('compras',{id:nid(),data:data,nome:nome,cat:cat,qtd:qtd,un:un,val:val,forn:forn,min:min,obs:obs,safra:safra,cultura:cultura});['c-nome','c-forn','c-obs'].forEach(function(i){document.getElementById(i).value='';});['c-qtd','c-val','c-min'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('c-safra').value='';document.getElementById('c-cultura').value='';fechaM('m-compra');}

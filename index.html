@@ -749,7 +749,30 @@ function editarCompra(id){
   abreM('m-compra');
 }
 
-function salvarCompra(){var data=document.getElementById('c-data').value,nome=document.getElementById('c-nome').value.trim(),cat=document.getElementById('c-cat').value,qtd=parseFloat(document.getElementById('c-qtd').value),un=document.getElementById('c-un').value,val=parseFloat(document.getElementById('c-val').value),forn=document.getElementById('c-forn').value.trim(),min=parseFloat(document.getElementById('c-min').value)||0,obs=document.getElementById('c-obs').value.trim(),safra=document.getElementById('c-safra').value,cultura=document.getElementById('c-cultura').value;if(!data||!nome||!cat||isNaN(qtd)||isNaN(val)){alert('Preencha: data, insumo, categoria, quantidade e valor.');return;}salvarFS('compras',{id:nid(),data:data,nome:nome,cat:cat,qtd:qtd,un:un,val:val,forn:forn,min:min,obs:obs,safra:safra,cultura:cultura});['c-nome','c-forn','c-obs'].forEach(function(i){document.getElementById(i).value='';});['c-qtd','c-val','c-min'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('c-safra').value='';document.getElementById('c-cultura').value='';fechaM('m-compra');}
+function salvarCompra(){
+  var editId=document.getElementById('c-edit-id').value;
+  var data=document.getElementById('c-data').value;
+  var nome=document.getElementById('c-nome').value.trim();
+  var cat=document.getElementById('c-cat').value;
+  var qtd=parseFloat(document.getElementById('c-qtd').value);
+  var un=document.getElementById('c-un').value;
+  var val=parseFloat(document.getElementById('c-val').value);
+  var forn=document.getElementById('c-forn').value.trim();
+  var min=parseFloat(document.getElementById('c-min').value)||0;
+  var obs=document.getElementById('c-obs').value.trim();
+  var safra=document.getElementById('c-safra').value;
+  var cultura=document.getElementById('c-cultura').value;
+  if(!data||!nome||!cat||isNaN(qtd)||isNaN(val)){alert('Preencha: data, insumo, categoria, quantidade e valor.');return;}
+  var id=editId?Number(editId):nid();
+  salvarFS('compras',{id:id,data:data,nome:nome,cat:cat,qtd:qtd,un:un,val:val,forn:forn,min:min,obs:obs,safra:safra,cultura:cultura});
+  ['c-nome','c-forn','c-obs'].forEach(function(i){document.getElementById(i).value='';});
+  ['c-qtd','c-val','c-min'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('c-safra').value='';
+  document.getElementById('c-cultura').value='';
+  document.getElementById('c-edit-id').value='';
+  fechaM('m-compra');
+}
+
 function renderCompras(){
   var lista=appDB.compras.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
   var tot=lista.reduce(function(s,c){return s+c.qtd*c.val;},0);

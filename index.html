@@ -389,9 +389,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 <div class="mo" id="m-peca"><div class="ms">
   <div class="mh" onclick="fechaM('m-peca')"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-    <div class="mtit" style="margin:0">Nova peca / M.O.</div>
-    <button onclick="fechaM('m-peca');abreM('m-nf-peca')" style="background:var(--pl);color:var(--p);border:1.5px solid var(--p);font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer">Importar NF</button>
+    <div class="mtit" style="margin:0" id="m-peca-titulo">Nova peca / M.O.</div>
+    <button id="m-peca-nf-btn" onclick="fechaM('m-peca');abreM('m-nf-peca')" style="background:var(--pl);color:var(--p);border:1.5px solid var(--p);font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer">Importar NF</button>
   </div>
+  <input type="hidden" id="p-edit-id" value="">
   <div class="fr" style="margin-bottom:10px">
     <div class="fg" style="margin:0"><label class="fl">Data</label><input type="date" class="fi" id="p-data"></div>
     <div class="fg" style="margin:0"><label class="fl">Tipo</label><div class="sw"><select class="fsel" id="p-tipo"><option>Peca de reposicao</option><option>Mao de obra terceirizada</option><option>Servico externo</option><option>Manutencao preventiva</option><option>Outros</option></select></div></div>
@@ -403,7 +404,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <div class="fg" style="margin:0"><label class="fl">Fornecedor</label><input type="text" class="fi" id="p-forn" placeholder="Nome"></div>
   </div>
   <div class="fg"><label class="fl">Obs</label><textarea class="fta" id="p-obs" placeholder="Opcional..."></textarea></div>
-  <button class="btn bp2" onclick="salvarPeca()">Registrar</button>
+  <button class="btn bp2" id="p-btn-salvar" onclick="salvarPeca()">Registrar</button>
 </div></div>
 
 <!-- MODAL NF PECAS -->
@@ -831,8 +832,42 @@ function setVista(v){vistaT=v;document.getElementById('tv-lista').classList.togg
 function renderTarefas(){var fid=document.getElementById('ft-func').value,fst=document.getElementById('ft-stat').value;var lista=appDB.tarefas.filter(function(t){if(fid&&String(t.fid)!==fid)return false;if(fst&&t.stat!==fst)return false;return true;}).sort(function(a,b){var da=a.inicio||a.data||'';var db2=b.inicio||b.data||'';return ordemTarefas==='asc'?da.localeCompare(db2):db2.localeCompare(da);});var el=document.getElementById('vista-tarefas');if(!lista.length){el.innerHTML='<div class="empty"><div class="ei">✅</div>Nenhuma tarefa</div>';return;}if(vistaT==='lista'){el.innerHTML='<div class="card"><div style="padding:0 16px">'+lista.map(function(t){var datas='';if(t.inicio||t.termino){datas='<div class="lsub" style="margin-top:2px">';if(t.inicio)datas+='Inicio: '+fmtD(t.inicio);if(t.inicio&&t.termino)datas+=' | ';if(t.termino)datas+='Termino: '+fmtD(t.termino);datas+='</div>';}return '<div class="lrow"><div class="lm"><div class="ltit">'+t.desc+'</div><div class="lsub">'+t.fnome+' - '+t.setor+' - '+fmtD(t.data)+'</div>'+datas+(t.obs?'<div class="lsub" style="font-style:italic;margin-top:2px">'+t.obs+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0"><select class="sst" onchange="mudaStat('+t.id+',this.value)"><option'+(t.stat==='Pendente'?' selected':'')+'>Pendente</option><option'+(t.stat==='Em andamento'?' selected':'')+'>Em andamento</option><option'+(t.stat==='Concluida'?' selected':'')+'>Concluida</option></select><button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button><button class="bdel" onclick="deletarFS(\'tarefas\','+t.id+')">Excluir</button></div></div>';}).join('')+'</div></div>';}else{var cols=['Pendente','Em andamento','Concluida'],cores={'Pendente':'var(--a)','Em andamento':'var(--b)','Concluida':'var(--g2)'};el.innerHTML='<div class="kanban">'+cols.map(function(s){var cards=lista.filter(function(t){return t.stat===s;});return '<div class="kcol"><div class="kct" style="color:'+cores[s]+'">'+s+' ('+cards.length+')</div>'+(cards.map(function(t){var d='';if(t.inicio)d+='<div class="km">Inicio: '+fmtD(t.inicio)+'</div>';if(t.termino)d+='<div class="km">Termino: '+fmtD(t.termino)+'</div>';return '<div class="kcard"><div class="kct2">'+t.desc+'</div><div class="km">'+t.fnome+' - '+t.setor+'</div>'+d+(t.obs?'<div class="km" style="font-style:italic;margin-top:3px">'+t.obs+'</div>':'')+'<div style="margin-top:8px"><button onclick="editarTarefa('+t.id+')" style="background:var(--bl);color:var(--b);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button></div></div>';}).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:16px 0">Vazio</div>')+'</div>';}).join('')+'</div>';}}
 function mudaStat(id,s){var t=appDB.tarefas.filter(function(t){return String(t.id)===String(id);})[0];if(t){t.stat=s;if(s==='Em andamento'&&!t.inicio)t.inicio=hoje();if(s==='Concluida'){if(!t.inicio)t.inicio=hoje();if(!t.termino)t.termino=hoje();}salvarFS('tarefas',t);}}
 
+function editarPeca(id){
+  var p=appDB.pecas.filter(function(p){return String(p.id)===String(id);})[0];
+  if(!p)return;
+  document.getElementById('p-edit-id').value=id;
+  document.getElementById('m-peca-titulo').textContent='Editar peca / M.O.';
+  document.getElementById('p-btn-salvar').textContent='Salvar alteracoes';
+  document.getElementById('m-peca-nf-btn').style.display='none';
+  document.getElementById('p-data').value=p.data||'';
+  document.getElementById('p-tipo').value=p.tipo||'Peca de reposicao';
+  document.getElementById('p-desc').value=p.desc||'';
+  document.getElementById('p-maq').value=p.maq||'';
+  document.getElementById('p-val').value=p.val||'';
+  document.getElementById('p-forn').value=p.forn||'';
+  document.getElementById('p-obs').value=p.obs||'';
+  abreM('m-peca');
+}
+
 function salvarPeca(){var data=document.getElementById('p-data').value,tipo=document.getElementById('p-tipo').value,desc=document.getElementById('p-desc').value.trim(),maq=document.getElementById('p-maq').value.trim(),val=parseFloat(document.getElementById('p-val').value)||0,forn=document.getElementById('p-forn').value.trim(),obs=document.getElementById('p-obs').value.trim();if(!data||!desc){alert('Preencha data e descricao.');return;}salvarFS('pecas',{id:nid(),data:data,tipo:tipo,desc:desc,maq:maq,val:val,forn:forn,obs:obs});['p-desc','p-maq','p-forn','p-obs'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('p-val').value='';fechaM('m-peca');}
-function renderPecas(){var lista=appDB.pecas.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});var tot=lista.reduce(function(s,p){return s+p.val;},0);document.getElementById('pecas-total').textContent='Total: '+fmtR(tot);document.getElementById('lista-pecas').innerHTML=lista.length?lista.map(function(p){return '<div class="lrow"><div class="lm"><div class="ltit">'+p.desc+'</div><div class="lsub">'+p.tipo+(p.maq?' - '+p.maq:'')+'</div><div class="lsub">'+(p.forn||'--')+' - '+fmtD(p.data)+'</div></div><div class="lr"><div class="lv">'+fmtR(p.val)+'</div><button class="bdel" style="margin-top:5px" onclick="deletarFS(\'pecas\','+p.id+')">Excluir</button></div></div>';}).join(''):'<div class="empty"><div class="ei">🔧</div>Nenhum registro</div>';}
+function renderPecas(){
+  var lista=appDB.pecas.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
+  var tot=lista.reduce(function(s,p){return s+(Number(p.val)||0);},0);
+  document.getElementById('pecas-total').textContent='Total: '+fmtR(tot);
+  document.getElementById('lista-pecas').innerHTML=lista.length?lista.map(function(p){
+    return '<div class="lrow"><div class="lm"><div class="ltit">'+p.desc+'</div>'+
+      '<div class="lsub">'+p.tipo+(p.maq?' - '+p.maq:'')+'</div>'+
+      '<div class="lsub">'+(p.forn||'--')+' - '+fmtD(p.data)+'</div></div>'+
+      '<div class="lr"><div class="lv">'+fmtR(p.val)+'</div>'+
+        '<div style="display:flex;gap:5px;margin-top:5px;justify-content:flex-end">'+
+          '<button onclick="editarPeca('+p.id+')" style="background:var(--pl);color:var(--p);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
+          '<button class="bdel" onclick="delPeca('+p.id+')">Excluir</button>'+
+        '</div>'+
+      '</div></div>';
+  }).join(''):'<div class="empty"><div class="ei">🔧</div>Nenhum registro</div>';
+}
+
+function delPeca(id){if(!confirm('Excluir este registro?'))return;deletarFS('pecas',id);}
 
 function mudaTipoPec(){var tipo=document.getElementById('pec-tipo').value;document.getElementById('pec-nascimento').style.display=tipo==='nascimento'?'block':'none';document.getElementById('pec-contagem').style.display=tipo==='contagem'?'block':'none';document.getElementById('pec-generico').style.display=['morte','venda','compra','vacina','pesagem','outro'].indexOf(tipo)>=0?'block':'none';}
 function salvarPecuaria(){var data=document.getElementById('pec-data').value,tipo=document.getElementById('pec-tipo').value,obs=document.getElementById('pec-obs').value.trim();if(!data){alert('Informe a data.');return;}var reg={id:nid(),data:data,tipo:tipo,obs:obs};if(tipo==='nascimento'){reg.sexo=document.getElementById('pec-sexo').value;reg.idAnimal=document.getElementById('pec-id-animal').value.trim();reg.raca=document.getElementById('pec-raca').value.trim();reg.mae=document.getElementById('pec-mae').value.trim();}else if(tipo==='contagem'){reg.vacas=parseInt(document.getElementById('pec-vacas').value)||0;reg.bezerros=parseInt(document.getElementById('pec-bezerros').value)||0;reg.touros=parseInt(document.getElementById('pec-touros').value)||0;}else{reg.idAnimal=document.getElementById('pec-id2').value.trim();reg.qtd=parseFloat(document.getElementById('pec-qtd2').value)||1;reg.val=parseFloat(document.getElementById('pec-val2').value)||0;}salvarFS('pecuaria',reg);['pec-id-animal','pec-raca','pec-mae','pec-obs','pec-id2'].forEach(function(i){var el=document.getElementById(i);if(el)el.value='';});['pec-vacas','pec-bezerros','pec-touros','pec-qtd2','pec-val2'].forEach(function(i){var el=document.getElementById(i);if(el)el.value='';});fechaM('m-pecuaria');}

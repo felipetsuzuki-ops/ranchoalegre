@@ -795,7 +795,19 @@ function renderCompras(){
 function delCompra(id){if(!confirm('Excluir esta compra?'))return;deletarFS('compras',id);}
 
 function populaSelIns(){var est=estoque();document.getElementById('u-ins').innerHTML=est.map(function(e){return '<option value="'+e.nome+'">'+e.nome+' ('+e.saldo.toFixed(2)+' '+e.un+')</option>';}).join('');}
-function renderEst(){var est=estoque(),baixos=est.filter(function(e){return e.min>0&&e.saldo<=e.min;});document.getElementById('alerta-est').innerHTML=baixos.map(function(e){return '<div class="alrt">⚠️ <span><strong>'+e.nome+'</strong> - '+e.saldo.toFixed(2)+' '+e.un+' (min: '+e.min+')</span></div>';}).join('');document.getElementById('lista-est').innerHTML=est.length?est.map(function(e){var b=e.min>0&&e.saldo<=e.min;return '<div class="lrow"><div class="lm"><div class="ltit">'+e.nome+'</div><div class="lsub">'+e.cat+'</div></div><div class="lr"><div class="lv" style="color:'+(b?'var(--d)':'')+'">'+e.saldo.toFixed(2)+' '+e.un+'</div><span class="badge '+(b?'bb':'bok')+'">'+(b?'Baixo':'OK')+'</span></div></div>';}).join(''):'<div class="empty"><div class="ei">📦</div>Nenhum insumo</div>';}
+function renderEst(){
+  var est=estoque();
+  var comEstoque=est.filter(function(e){return e.saldo>0;});
+  var baixos=est.filter(function(e){return e.min>0&&e.saldo<=e.min;});
+  document.getElementById('alerta-est').innerHTML=baixos.map(function(e){return '<div class="alrt">⚠️ <span><strong>'+e.nome+'</strong> - '+e.saldo.toFixed(2)+' '+e.un+' (min: '+e.min+')</span></div>';}).join('');
+  document.getElementById('lista-est').innerHTML=comEstoque.length?comEstoque.map(function(e){
+    var b=e.min>0&&e.saldo<=e.min;
+    return '<div class="lrow"><div class="lm"><div class="ltit">'+e.nome+'</div><div class="lsub">'+e.cat+'</div></div>'+
+      '<div class="lr"><div class="lv" style="color:'+(b?'var(--d)':'')+'">'+e.saldo.toFixed(2)+' '+e.un+'</div>'+
+      '<span class="badge '+(b?'bb':'bok')+'">'+(b?'Baixo':'OK')+'</span></div></div>';
+  }).join(''):'<div class="empty"><div class="ei">📦</div>Estoque zerado</div>';
+}
+
 function registrarUso(){var ins=document.getElementById('u-ins').value,qtd=parseFloat(document.getElementById('u-qtd').value),data=document.getElementById('u-data').value;if(!ins||isNaN(qtd)||qtd<=0||!data){alert('Preencha todos os campos.');return;}salvarFS('usos',{id:nid(),ins:ins,qtd:qtd,data:data});document.getElementById('u-qtd').value='';}
 
 function salvarFunc(){var nome=document.getElementById('fn-nome').value.trim(),func=document.getElementById('fn-func').value.trim();if(!nome){alert('Informe o nome.');return;}salvarFS('funcs',{id:nid(),nome:nome,func:func});document.getElementById('fn-nome').value='';document.getElementById('fn-func').value='';}

@@ -678,14 +678,11 @@ function renderDash(){
   var chuvasMes=(appDB.chuvas||[]).filter(function(c){return c.data&&c.data.startsWith(mes);}).reduce(function(s,c){return s+Number(c.mm||0);},0);
   var ult=appDB.pecuaria.filter(function(p){return p.tipo==='contagem';}).sort(function(a,b){return (a.data||'').localeCompare(b.data||'');}).slice(-1)[0];
   var baseReb=ult?(Number(ult.vacas||0)+Number(ult.bezerros||0)+Number(ult.touros||0)):0;
-  var baseData=ult?ult.data:'';
-  // Soma nascimentos, compras e subtrai mortes e vendas após a última contagem
-  var movimentos=appDB.pecuaria.filter(function(p){return p.data>baseData;});
-  var nascTotal=movimentos.filter(function(p){return p.tipo==='nascimento';}).length;
-  var compraTotal=movimentos.filter(function(p){return p.tipo==='compra';}).reduce(function(s,p){return s+Number(p.qtd||1);},0);
-  var morteTotal=movimentos.filter(function(p){return p.tipo==='morte';}).reduce(function(s,p){return s+Number(p.qtd||1);},0);
-  var vendaTotal=movimentos.filter(function(p){return p.tipo==='venda';}).reduce(function(s,p){return s+Number(p.qtd||1);},0);
-  var reb=baseReb+nascTotal+compraTotal-morteTotal-vendaTotal;
+  var todosNasc=appDB.pecuaria.filter(function(p){return p.tipo==='nascimento';}).length;
+  var todasCompras=appDB.pecuaria.filter(function(p){return p.tipo==='compra';}).reduce(function(s,p){return s+Number(p.qtd||1);},0);
+  var todasMortes=appDB.pecuaria.filter(function(p){return p.tipo==='morte';}).reduce(function(s,p){return s+Number(p.qtd||1);},0);
+  var todasVendas=appDB.pecuaria.filter(function(p){return p.tipo==='venda';}).reduce(function(s,p){return s+Number(p.qtd||1);},0);
+  var reb=baseReb+todosNasc+todasCompras-todasMortes-todasVendas;
   var nasc=appDB.pecuaria.filter(function(p){return p.tipo==='nascimento'&&p.data&&p.data.startsWith(mes);}).length;
   document.getElementById('dash-grid').innerHTML=
     '<div class="st y"><div class="sl">Tarefas pend.</div><div class="sv">'+pend+'</div><div class="ss"><span style="text-decoration:underline;cursor:pointer" onclick="abreM(\'m-func\');renderListaFuncs()">funcionarios</span></div></div>'+
@@ -1165,4 +1162,3 @@ function gerarIcone(){try{var c=document.createElement('canvas');c.width=512;c.h
 </script>
 </body>
 </html>
-

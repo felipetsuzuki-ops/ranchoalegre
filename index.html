@@ -159,6 +159,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <input class="login-input" type="password" id="login-pass" placeholder="Senha" autocomplete="current-password">
     <button class="login-btn" onclick="fazerLogin()">Entrar</button>
     <button class="login-btn secondary" onclick="criarConta()">Criar conta</button>
+    <button class="login-btn secondary" onclick="redefinirSenha()" style="margin-top:4px;font-size:13px;opacity:.8">Esqueci minha senha</button>
     <div class="login-loading" id="login-loading">Aguarde...</div>
   </div>
 </div>
@@ -531,7 +532,7 @@ firebase.initializeApp({
 });
 var auth=firebase.auth();
 var db=firebase.firestore();
-db.enablePersistence({synchronizeTabs:true}).catch(function(){});
+// persistencia desativada para garantir sync entre dispositivos
 var unsubs=[];
 
 function syncDot(s){var d=document.getElementById('sync-dot');if(!d)return;d.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');}
@@ -539,31 +540,9 @@ function syncDot(s){var d=document.getElementById('sync-dot');if(!d)return;d.cla
 firebase.auth().onAuthStateChanged(function(user){
   if(user){
     window.currentUser=user;
-    localStorage.setItem('assessor_uid', user.uid);
-    localStorage.setItem('assessor_email', user.email||'');
     document.getElementById('login-screen').classList.add('hide');
     iniciarSync(user.uid);
   }else{
-    // Tenta restaurar sessao offline do cache local
-    var cachedUid=localStorage.getItem('assessor_uid');
-    var cachedData=localStorage.getItem('assessor_cache');
-    if(cachedUid && cachedData){
-      try{
-        var parsed=JSON.parse(cachedData);
-        Object.keys(parsed).forEach(function(k){appDB[k]=parsed[k];});
-        window.currentUser={uid:cachedUid};
-        document.getElementById('login-screen').classList.add('hide');
-        document.getElementById('sync-dot') && (document.getElementById('sync-dot').className='sync-dot offline');
-        renderDash();renderChuva();populaSelIns();populaSelFunc();
-        renderPag(window.pagAtual||'dash');
-        // Avisa que esta offline
-        setTimeout(function(){
-          var dot=document.getElementById('sync-dot');
-          if(dot)dot.title='Offline - dados do cache';
-        },500);
-        return;
-      }catch(e){}
-    }
     window.currentUser=null;
     document.getElementById('login-screen').classList.remove('hide');
     unsubs.forEach(function(u){u();});unsubs=[];
@@ -578,10 +557,7 @@ function iniciarSync(uid){
     var u=db.collection('usuarios').doc(uid).collection(col).onSnapshot(function(snap){
       appDB[col]=[];snap.forEach(function(d){appDB[col].push(d.data());});
       ok[col]=true;
-      if(cols.every(function(c){return ok[c];})){
-        syncDot('ok');
-        try{localStorage.setItem('assessor_cache',JSON.stringify(appDB));}catch(e){}
-      }
+      if(cols.every(function(c){return ok[c];}))syncDot('ok');
       renderPag(window.pagAtual||'dash');
       if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
       populaSelIns();populaSelFunc();
@@ -592,29 +568,17 @@ function iniciarSync(uid){
 
 window.salvarFS=function(col,item){
   if(!window.currentUser)return;
-  // Update local cache immediately for offline use
-  if(!appDB[col])appDB[col]=[];
-  var idx=appDB[col].findIndex(function(x){return String(x.id)===String(item.id);});
-  if(idx>=0)appDB[col][idx]=item; else appDB[col].push(item);
-  try{localStorage.setItem('assessor_cache',JSON.stringify(appDB));}catch(e){}
   syncDot('syncing');
   db.collection('usuarios').doc(window.currentUser.uid).collection(col).doc(String(item.id)).set(item)
-    .then(function(){syncDot('ok');}).catch(function(e){
-      syncDot('offline');
-      // Dados ficam no cache local e sincronizam quando voltar a internet
-      console.log('Salvo offline, sincronizara quando conectar');
-    });
+    .then(function(){syncDot('ok');})
+    .catch(function(e){syncDot('offline');console.error(e);});
 };
 window.deletarFS=function(col,id){
   if(!window.currentUser)return;
-  // Remove from local cache immediately
-  if(appDB[col])appDB[col]=appDB[col].filter(function(x){return String(x.id)!==String(id);});
-  try{localStorage.setItem('assessor_cache',JSON.stringify(appDB));}catch(e){}
-  renderPag(window.pagAtual||'dash');
-  if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
   syncDot('syncing');
   db.collection('usuarios').doc(window.currentUser.uid).collection(col).doc(String(id)).delete()
-    .then(function(){syncDot('ok');}).catch(function(){syncDot('offline');});
+    .then(function(){syncDot('ok');})
+    .catch(function(){syncDot('offline');});
 };
 window.fazerLogin=function(){
   var e=document.getElementById('login-email').value.trim(),p=document.getElementById('login-pass').value;
@@ -637,6 +601,17 @@ window.criarConta=function(){
     document.getElementById('login-err').textContent=err.code==='auth/email-already-in-use'?'Email ja em uso.':'Erro: '+err.message;
   });
 };
+window.redefinirSenha=function(){
+  var e=document.getElementById('login-email').value.trim();
+  if(!e){document.getElementById('login-err').textContent='Digite seu email acima primeiro.';return;}
+  auth.sendPasswordResetEmail(e).then(function(){
+    document.getElementById('login-err').style.color='#a8f0c6';
+    document.getElementById('login-err').textContent='Email enviado! Verifique sua caixa de entrada.';
+  }).catch(function(err){
+    document.getElementById('login-err').textContent=err.code==='auth/user-not-found'?'Email nao encontrado.':'Erro: '+err.message;
+  });
+};
+
 window.fazerLogout=function(){if(confirm('Deseja sair?'))auth.signOut();};
 
 // App

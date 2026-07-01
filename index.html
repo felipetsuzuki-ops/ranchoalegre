@@ -215,15 +215,18 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
       <div id="alerta-est"></div>
       <div class="sec">Registrar uso</div>
       <div class="card"><div class="cb">
+        <input type="hidden" id="u-edit-id" value="">
         <div class="fr" style="margin-bottom:10px">
           <div class="fg" style="margin:0"><label class="fl">Insumo</label><div class="sw"><select class="fsel" id="u-ins"></select></div></div>
           <div class="fg" style="margin:0"><label class="fl">Quantidade</label><input type="number" class="fi" id="u-qtd" placeholder="0" min="0" step="0.01" inputmode="decimal"></div>
         </div>
         <div class="fg"><label class="fl">Data</label><input type="date" class="fi" id="u-data"></div>
-        <button class="btn bt" onclick="registrarUso()">Registrar uso</button>
+        <button class="btn bt" id="u-btn-salvar" onclick="registrarUso()">Registrar uso</button>
       </div></div>
       <div class="sec">Saldo atual</div>
       <div class="card"><div style="padding:0 16px" id="lista-est"></div></div>
+      <div class="sec">Historico de usos</div>
+      <div class="card"><div style="padding:0 16px" id="lista-usos"></div></div>
     </div>
     <div id="pg-tarefas" class="page">
       <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -597,6 +600,7 @@ function iniciarSync(uid){
       if(cols.every(function(c){return ok[c];}))syncDot('ok');
       renderPag(window.pagAtual||'dash');
       if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
+      if(window.pagAtual==='estoque')renderUsos();
       populaSelIns();populaSelFunc();
     },function(){syncDot('offline');});
     unsubs.push(u);
@@ -676,7 +680,7 @@ function navTo(id,btn,title,sub){
 function renderPag(id){
   if(id==='dash'){renderDash();renderChuva();}
   if(id==='compras'){renderCompras();renderPecas();}
-  if(id==='estoque'){renderEst();populaSelIns();}
+  if(id==='estoque'){renderEst();renderUsos();populaSelIns();}
   if(id==='tarefas'){populaSelFunc();renderTarefas();}
 
   if(id==='pecuaria')renderPecuaria();
@@ -826,7 +830,58 @@ function renderEst(){
   }).join(''):'<div class="empty"><div class="ei">📦</div>Estoque zerado</div>';
 }
 
-function registrarUso(){var ins=document.getElementById('u-ins').value,qtd=parseFloat(document.getElementById('u-qtd').value),data=document.getElementById('u-data').value;if(!ins||isNaN(qtd)||qtd<=0||!data){alert('Preencha todos os campos.');return;}salvarFS('usos',{id:nid(),ins:ins,qtd:qtd,data:data});document.getElementById('u-qtd').value='';}
+function registrarUso(){
+  var editId=document.getElementById('u-edit-id').value;
+  var ins=document.getElementById('u-ins').value;
+  var qtd=parseFloat(document.getElementById('u-qtd').value);
+  var data=document.getElementById('u-data').value;
+  if(!ins||isNaN(qtd)||qtd<=0||!data){alert('Preencha todos os campos.');return;}
+  salvarFS('usos',{id:editId?Number(editId):nid(),ins:ins,qtd:qtd,data:data});
+  document.getElementById('u-qtd').value='';
+  document.getElementById('u-edit-id').value='';
+  document.getElementById('u-btn-salvar').textContent='Registrar uso';
+  document.getElementById('u-btn-salvar').className='btn bt';
+}
+
+function editarUso(id){
+  var u=appDB.usos.filter(function(u){return String(u.id)===String(id);})[0];
+  if(!u)return;
+  document.getElementById('u-edit-id').value=id;
+  document.getElementById('u-qtd').value=u.qtd;
+  document.getElementById('u-data').value=u.data;
+  // Set insumo select
+  var sel=document.getElementById('u-ins');
+  for(var i=0;i<sel.options.length;i++){
+    if(sel.options[i].value===u.ins){sel.selectedIndex=i;break;}
+  }
+  document.getElementById('u-btn-salvar').textContent='Salvar alteracao';
+  document.getElementById('u-btn-salvar').className='btn bg';
+  // Scroll to form
+  document.getElementById('pages').scrollTop=0;
+}
+
+function delUso(id){
+  if(!confirm('Excluir este uso?'))return;
+  deletarFS('usos',id);
+}
+
+function renderUsos(){
+  var lista=appDB.usos.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
+  var el=document.getElementById('lista-usos');
+  if(!el)return;
+  el.innerHTML=lista.length?lista.map(function(u){
+    return '<div class="lrow"><div class="lm">'+
+      '<div class="ltit">'+u.ins+'</div>'+
+      '<div class="lsub">'+fmtD(u.data)+'</div>'+
+    '</div><div class="lr">'+
+      '<div class="lv">'+Number(u.qtd).toFixed(2)+'</div>'+
+      '<div style="display:flex;gap:5px;margin-top:5px;justify-content:flex-end">'+
+        '<button onclick="editarUso('+u.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
+        '<button class="bdel" onclick="delUso('+u.id+')">Excluir</button>'+
+      '</div>'+
+    '</div></div>';
+  }).join(''):'<div class="empty" style="padding:14px"><div class="ei">📋</div>Nenhum uso registrado</div>';
+}
 
 function salvarFunc(){var nome=document.getElementById('fn-nome').value.trim(),func=document.getElementById('fn-func').value.trim();if(!nome){alert('Informe o nome.');return;}salvarFS('funcs',{id:nid(),nome:nome,func:func});document.getElementById('fn-nome').value='';document.getElementById('fn-func').value='';}
 function renderListaFuncs(){document.getElementById('lista-funcs').innerHTML=appDB.funcs.length?appDB.funcs.map(function(f){return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+f.func+'</div></div><button class="bdel" onclick="deletarFS(\'funcs\','+f.id+')">Excluir</button></div>';}).join(''):'<div class="empty" style="padding:14px">Nenhum funcionario</div>';}

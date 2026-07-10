@@ -197,11 +197,18 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
       <div class="tg">
         <button class="tgb active" id="tab-comp" onclick="setTabComp('compras')">Insumos</button>
         <button class="tgb" id="tab-pec" onclick="setTabComp('pecas')">Pecas e M.O.</button>
+        <button class="tgb" id="tab-cont" onclick="setTabComp('contas')">Contas</button>
       </div>
       <div id="sub-compras">
         <div class="card">
           <div class="ch"><span class="ct" id="compras-total">Total: R$ 0,00</span><button class="btn bx bsm" onclick="expXlsx('compras')">Excel</button></div>
           <div style="padding:0 16px" id="lista-compras"></div>
+        </div>
+      </div>
+      <div id="sub-contas" style="display:none">
+        <div class="card">
+          <div class="ch"><span class="ct" id="contas-total">Total: R$ 0,00</span><button class="btn bx bsm" onclick="expXlsx('contas')">Excel</button></div>
+          <div style="padding:0 16px" id="lista-contas"></div>
         </div>
       </div>
       <div id="sub-pecas" style="display:none">
@@ -255,6 +262,26 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
     <div id="pg-manut" class="page">
       <div id="manut-alertas"></div>
       <div class="card"><div style="padding:0 16px" id="lista-manut"></div></div>
+    </div>
+
+    <div id="pg-adiant" class="page">
+      <div class="sg" id="adiant-resumo"></div>
+      <div class="sec">Novo adiantamento</div>
+      <div class="card"><div class="cb">
+        <input type="hidden" id="ad-edit-id" value="">
+        <div class="fr" style="margin-bottom:10px">
+          <div class="fg" style="margin:0"><label class="fl">Funcionario</label><div class="sw"><select class="fsel" id="ad-func"></select></div></div>
+          <div class="fg" style="margin:0"><label class="fl">Data</label><input type="date" class="fi" id="ad-data"></div>
+        </div>
+        <div class="fr" style="margin-bottom:10px">
+          <div class="fg" style="margin:0"><label class="fl">Valor R$</label><input type="number" class="fi" id="ad-val" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>
+          <div class="fg" style="margin:0"><label class="fl">Tipo</label><div class="sw"><select class="fsel" id="ad-tipo"><option>Adiantamento</option><option>Vale</option><option>Pagamento</option><option>Desconto</option></select></div></div>
+        </div>
+        <div class="fg"><label class="fl">Obs</label><textarea class="fta" id="ad-obs" placeholder="Opcional..." style="min-height:50px"></textarea></div>
+        <button class="btn bg" id="ad-btn-salvar" onclick="salvarAdiant()">Registrar</button>
+      </div></div>
+      <div class="sec">Historico por funcionario</div>
+      <div id="lista-adiant"></div>
     </div>
 
     <div id="pg-rel" class="page">
@@ -332,6 +359,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
 
     <button class="nb" onclick="navTo('pecuaria',this,'Pecuaria','Rebanho')"><span class="ni">🐄</span>Pecuaria</button>
     <button class="nb" onclick="navTo('manut',this,'Manutencoes','Maquinas')"><span class="ni">🔩</span>Manut.</button>
+    <button class="nb" onclick="navTo('adiant',this,'Adiantamentos','Funcionarios')"><span class="ni">💵</span>Adiant.</button>
     <button class="nb" onclick="navTo('rel',this,'Relatorios','Analise')"><span class="ni">📈</span>Relat.</button>
   </nav>
 </div>
@@ -531,6 +559,25 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
   <button class="btn bg" id="mn-btn-salvar" onclick="salvarManut()">Registrar manutencao</button>
 </div></div>
 
+<!-- MODAL CONTA -->
+<div class="mo" id="m-conta"><div class="ms">
+  <div class="mh" onclick="fechaM('m-conta')"></div>
+  <div class="mtit" id="m-conta-titulo">Nova conta</div>
+  <input type="hidden" id="ct-edit-id" value="">
+  <div class="fr" style="margin-bottom:10px">
+    <div class="fg" style="margin:0"><label class="fl">Data vencimento</label><input type="date" class="fi" id="ct-venc"></div>
+    <div class="fg" style="margin:0"><label class="fl">Data pagamento</label><input type="date" class="fi" id="ct-pag"></div>
+  </div>
+  <div class="fg"><label class="fl">Descricao</label><input type="text" class="fi" id="ct-desc" placeholder="Ex: Conta de luz, agua, internet..."></div>
+  <div class="fr" style="margin-bottom:10px">
+    <div class="fg" style="margin:0"><label class="fl">Categoria</label><div class="sw"><select class="fsel" id="ct-cat"><option>Energia eletrica</option><option>Agua</option><option>Internet</option><option>Telefone</option><option>Combustivel</option><option>Aluguel</option><option>Seguro</option><option>Imposto</option><option>Funcionario</option><option>Outros</option></select></div></div>
+    <div class="fg" style="margin:0"><label class="fl">Valor R$</label><input type="number" class="fi" id="ct-val" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>
+  </div>
+  <div class="fg"><label class="fl">Status</label><div class="sw"><select class="fsel" id="ct-status"><option>A pagar</option><option>Pago</option><option>Atrasado</option></select></div></div>
+  <div class="fg"><label class="fl">Obs</label><textarea class="fta" id="ct-obs" placeholder="Opcional..." style="min-height:50px"></textarea></div>
+  <button class="btn bg" id="ct-btn-salvar" onclick="salvarConta()">Registrar conta</button>
+</div></div>
+
 <!-- MODAL CHUVA -->
 <div class="mo" id="m-chuva"><div class="ms">
   <div class="mh" onclick="fechaM('m-chuva')"></div>
@@ -592,7 +639,7 @@ firebase.auth().onAuthStateChanged(function(user){
 function iniciarSync(uid){
   syncDot('syncing');
   unsubs.forEach(function(u){u();});unsubs=[];
-  var cols=['compras','usos','tarefas','funcs','pecas','pecuaria','chuvas','manutencoes','vendas'],ok={};
+  var cols=['compras','usos','tarefas','funcs','pecas','pecuaria','chuvas','manutencoes','vendas','adiantamentos','contas'],ok={};
   cols.forEach(function(col){
     var u=db.collection('usuarios').doc(uid).collection(col).onSnapshot(function(snap){
       appDB[col]=[];snap.forEach(function(d){appDB[col].push(d.data());});
@@ -601,6 +648,8 @@ function iniciarSync(uid){
       renderPag(window.pagAtual||'dash');
       if(!window.pagAtual||window.pagAtual==='dash'){renderDash();renderChuva();}
       if(window.pagAtual==='estoque')renderUsos();
+      if(window.pagAtual==='adiant')renderAdiant();
+      if(window.pagAtual==='compras')renderContas();
       populaSelIns();populaSelFunc();
     },function(){syncDot('offline');});
     unsubs.push(u);
@@ -656,7 +705,7 @@ window.redefinirSenha=function(){
 window.fazerLogout=function(){if(confirm('Deseja sair?'))auth.signOut();};
 
 // App
-var appDB={compras:[],usos:[],tarefas:[],funcs:[],pecas:[],pecuaria:[],chuvas:[],manutencoes:[],vendas:[]};
+var appDB={compras:[],usos:[],tarefas:[],funcs:[],pecas:[],pecuaria:[],chuvas:[],manutencoes:[],vendas:[],adiantamentos:[],contas:[]};
 window.pagAtual='dash';
 function nid(){return Date.now()+Math.floor(Math.random()*10000);}
 function hoje(){return new Date().toISOString().split('T')[0];}
@@ -685,6 +734,7 @@ function renderPag(id){
 
   if(id==='pecuaria')renderPecuaria();
   if(id==='manut')renderManut();
+  if(id==='adiant'){populaSelAdiant();renderAdiant();}
   if(id==='rel')renderRel();
 }
 function abreM(id){document.getElementById(id).classList.add('open');}
@@ -693,15 +743,19 @@ document.querySelectorAll('.mo').forEach(function(m){m.addEventListener('click',
 function setTabComp(tab){
   document.getElementById('tab-comp').classList.toggle('active',tab==='compras');
   document.getElementById('tab-pec').classList.toggle('active',tab==='pecas');
+  document.getElementById('tab-cont').classList.toggle('active',tab==='contas');
   document.getElementById('sub-compras').style.display=tab==='compras'?'block':'none';
   document.getElementById('sub-pecas').style.display=tab==='pecas'?'block':'none';
+  document.getElementById('sub-contas').style.display=tab==='contas'?'block':'none';
+  if(tab==='contas')renderContas();
 }
 
 function abrirFab(){
   if(pag==='dash')abrirNovaCompra();
   else if(pag==='compras'){
-    var tabAtiva=document.getElementById('tab-pec').classList.contains('active');
-    if(tabAtiva)abreM('m-peca'); else abrirNovaCompra();
+    if(document.getElementById('tab-pec').classList.contains('active'))abreM('m-peca');
+    else if(document.getElementById('tab-cont').classList.contains('active'))abreM('m-conta');
+    else abrirNovaCompra();
   }
   else if(pag==='tarefas')abrirNovaTarefa();
   else if(pag==='manut')abreM('m-manut');
@@ -978,6 +1032,12 @@ function renderRel(){
   pecs.forEach(function(p){var v=Number(p.val)||0;var cat=p.tipo||'Peca de reposicao';pCat[cat]=(pCat[cat]||0)+v;var f=p.forn||'Sem fornecedor';pForn[f]=(pForn[f]||0)+v;});function toRows(obj){var e=Object.entries(obj).sort(function(a,b){return b[1]-a[1];});return e.length?e.map(function(e){return '<div class="lrow"><span class="ltit">'+e[0]+'</span><span class="lv">'+fmtR(e[1])+'</span></div>';}).join(''):'<div class="empty" style="padding:14px">Sem dados</div>';}document.getElementById('rel-cat').innerHTML=toRows(pCat);document.getElementById('rel-forn').innerHTML=toRows(pForn);document.getElementById('rel-safra').innerHTML=toRows(pSafra);document.getElementById('rel-func').innerHTML=appDB.funcs.map(function(f){var ft=tar.filter(function(t){return t.fid===f.id;});var conc=ft.filter(function(t){return t.stat==='Concluida';}).length;return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+ft.length+' tarefa(s) - '+conc+' concluida(s)</div></div><div class="lv">'+conc+'</div></div>';}).join('')||'<div class="empty" style="padding:14px">Sem dados</div>';}
 
 function expXlsx(tipo){
+  if(tipo==='contas'){
+    var wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((appDB.contas||[]).map(function(c){return {'Descricao':c.desc,'Categoria':c.cat,'Vencimento':fmtD(c.venc),'Pagamento':fmtD(c.pag),'Valor':c.val,'Status':c.status,'Obs':c.obs};})),'Contas');
+    XLSX.writeFile(wb,'contas.xlsx');
+    return;
+  }
   if(tipo==='vendas'){
     var wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((appDB.vendas||[]).map(function(v){return {'Data':fmtD(v.data),'Tipo':v.tipo==='grao'?'Graos':v.tipo==='gado'?'Gado':'Outro','Cultura':v.cultura||'','Safra':v.safra||'','Qtd sc':v.qtd||'','Preco sc':v.preco||'','Cabecas':v.cabecas||'','Total':v.total||0,'Comprador':v.comprador||'','Obs':v.obs||''};})),'Vendas');
@@ -1342,11 +1402,185 @@ function renderVendas(){
 
 function delVenda(id){if(!confirm('Excluir esta venda?'))return;deletarFS('vendas',id);}
 
+function populaSelAdiant(){
+  var sel=document.getElementById('ad-func');
+  if(!sel)return;
+  sel.innerHTML=appDB.funcs.map(function(f){return '<option value="'+f.id+'">'+f.nome+'</option>';}).join('');
+}
+
+function salvarAdiant(){
+  var editId=document.getElementById('ad-edit-id').value;
+  var fid=parseInt(document.getElementById('ad-func').value);
+  var data=document.getElementById('ad-data').value;
+  var val=parseFloat(document.getElementById('ad-val').value);
+  var tipo=document.getElementById('ad-tipo').value;
+  var obs=document.getElementById('ad-obs').value.trim();
+  if(!fid||!data||isNaN(val)||val<=0){alert('Preencha funcionario, data e valor.');return;}
+  var f=appDB.funcs.filter(function(f){return f.id===fid;})[0];
+  salvarFS('adiantamentos',{id:editId?Number(editId):nid(),fid:fid,fnome:f?f.nome:'',data:data,val:val,tipo:tipo,obs:obs});
+  document.getElementById('ad-val').value='';
+  document.getElementById('ad-obs').value='';
+  document.getElementById('ad-edit-id').value='';
+  document.getElementById('ad-btn-salvar').textContent='Registrar';
+}
+
+function editarAdiant(id){
+  var a=(appDB.adiantamentos||[]).filter(function(a){return String(a.id)===String(id);})[0];
+  if(!a)return;
+  populaSelAdiant();
+  document.getElementById('ad-edit-id').value=id;
+  var sel=document.getElementById('ad-func');
+  for(var i=0;i<sel.options.length;i++){if(String(sel.options[i].value)===String(a.fid)){sel.selectedIndex=i;break;}}
+  document.getElementById('ad-data').value=a.data||'';
+  document.getElementById('ad-val').value=a.val||'';
+  document.getElementById('ad-tipo').value=a.tipo||'Adiantamento';
+  document.getElementById('ad-obs').value=a.obs||'';
+  document.getElementById('ad-btn-salvar').textContent='Salvar alteracao';
+  document.getElementById('pages').scrollTop=0;
+}
+
+function renderAdiant(){
+  var lista=appDB.adiantamentos||[];
+  var mes=new Date().toISOString().slice(0,7);
+
+  // Resumo por funcionario
+  var porFunc={};
+  appDB.funcs.forEach(function(f){porFunc[f.id]={nome:f.nome,total:0};});
+  lista.forEach(function(a){
+    if(!porFunc[a.fid])porFunc[a.fid]={nome:a.fnome,total:0};
+    porFunc[a.fid].total+=Number(a.val||0);
+  });
+  var totalGeral=lista.reduce(function(s,a){return s+Number(a.val||0);},0);
+  var totalMes=lista.filter(function(a){return a.data&&a.data.startsWith(mes);}).reduce(function(s,a){return s+Number(a.val||0);},0);
+
+  var elR=document.getElementById('adiant-resumo');
+  if(elR){
+    elR.innerHTML=
+      '<div class="st t"><div class="sl">Total mes</div><div class="sv" style="font-size:18px">'+fmtR(totalMes)+'</div></div>'+
+      '<div class="st r"><div class="sl">Total geral</div><div class="sv" style="font-size:18px">'+fmtR(totalGeral)+'</div></div>';
+  }
+
+  // Lista por funcionario
+  var elL=document.getElementById('lista-adiant');
+  if(!elL)return;
+  if(!lista.length){elL.innerHTML='<div class="empty"><div class="ei">💵</div>Nenhum adiantamento</div>';return;}
+
+  // Group by funcionario
+  var grupos={};
+  lista.forEach(function(a){
+    var key=a.fid||a.fnome;
+    if(!grupos[key])grupos[key]={nome:a.fnome,itens:[],total:0};
+    grupos[key].itens.push(a);
+    grupos[key].total+=Number(a.val||0);
+  });
+
+  elL.innerHTML=Object.values(grupos).map(function(g){
+    var itens=g.itens.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
+    return '<div class="card" style="margin-bottom:14px"><div class="ch">'+
+      '<span class="ct">'+g.nome+'</span>'+
+      '<span style="font-size:14px;font-weight:800;color:var(--d)">'+fmtR(g.total)+'</span>'+
+    '</div><div style="padding:0 16px">'+
+      itens.map(function(a){
+        return '<div class="lrow"><div class="lm">'+
+          '<div class="ltit">'+a.tipo+'</div>'+
+          '<div class="lsub">'+fmtD(a.data)+(a.obs?' - '+a.obs:'')+'</div>'+
+        '</div><div class="lr">'+
+          '<div class="lv" style="color:var(--d)">'+fmtR(a.val)+'</div>'+
+          '<div style="display:flex;gap:5px;margin-top:5px">'+
+            '<button onclick="editarAdiant('+a.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
+            '<button class="bdel" onclick="delAdiant('+a.id+')">Excluir</button>'+
+          '</div>'+
+        '</div></div>';
+      }).join('')+
+    '</div></div>';
+  }).join('');
+}
+
+function delAdiant(id){
+  if(!confirm('Excluir este registro?'))return;
+  deletarFS('adiantamentos',id);
+}
+
+function salvarConta(){
+  var editId=document.getElementById('ct-edit-id').value;
+  var venc=document.getElementById('ct-venc').value;
+  var pag=document.getElementById('ct-pag').value;
+  var desc=document.getElementById('ct-desc').value.trim();
+  var cat=document.getElementById('ct-cat').value;
+  var val=parseFloat(document.getElementById('ct-val').value)||0;
+  var status=document.getElementById('ct-status').value;
+  var obs=document.getElementById('ct-obs').value.trim();
+  if(!venc||!desc||!val){alert('Preencha vencimento, descricao e valor.');return;}
+  salvarFS('contas',{id:editId?Number(editId):nid(),venc:venc,pag:pag,desc:desc,cat:cat,val:val,status:status,obs:obs});
+  document.getElementById('ct-desc').value='';
+  document.getElementById('ct-val').value='';
+  document.getElementById('ct-obs').value='';
+  document.getElementById('ct-pag').value='';
+  document.getElementById('ct-edit-id').value='';
+  document.getElementById('m-conta-titulo').textContent='Nova conta';
+  document.getElementById('ct-btn-salvar').textContent='Registrar conta';
+  fechaM('m-conta');
+}
+
+function editarConta(id){
+  var c=(appDB.contas||[]).filter(function(c){return String(c.id)===String(id);})[0];
+  if(!c)return;
+  document.getElementById('ct-edit-id').value=id;
+  document.getElementById('m-conta-titulo').textContent='Editar conta';
+  document.getElementById('ct-btn-salvar').textContent='Salvar alteracoes';
+  document.getElementById('ct-venc').value=c.venc||'';
+  document.getElementById('ct-pag').value=c.pag||'';
+  document.getElementById('ct-desc').value=c.desc||'';
+  document.getElementById('ct-cat').value=c.cat||'Outros';
+  document.getElementById('ct-val').value=c.val||'';
+  document.getElementById('ct-status').value=c.status||'A pagar';
+  document.getElementById('ct-obs').value=c.obs||'';
+  abreM('m-conta');
+}
+
+function delConta(id){
+  if(!confirm('Excluir esta conta?'))return;
+  deletarFS('contas',id);
+}
+
+function renderContas(){
+  var lista=(appDB.contas||[]).slice().sort(function(a,b){return (b.venc||'').localeCompare(a.venc||'');});
+  var tot=lista.reduce(function(s,c){return s+Number(c.val||0);},0);
+  var totPago=lista.filter(function(c){return c.status==='Pago';}).reduce(function(s,c){return s+Number(c.val||0);},0);
+  var totPend=lista.filter(function(c){return c.status!=='Pago';}).reduce(function(s,c){return s+Number(c.val||0);},0);
+  var elT=document.getElementById('contas-total');
+  if(elT)elT.innerHTML='Pago: <span style="color:var(--g2)">'+fmtR(totPago)+'</span> | Pendente: <span style="color:var(--d)">'+fmtR(totPend)+'</span>';
+  var elL=document.getElementById('lista-contas');
+  if(!elL)return;
+
+  // Alerts for overdue
+  var hoje_=hoje();
+  var alerts=lista.filter(function(c){return c.status==='A pagar'&&c.venc&&c.venc<hoje_;});
+  var alertHtml=alerts.map(function(c){return '<div class="alrt">⚠️ <span><strong>'+c.desc+'</strong> - venceu em '+fmtD(c.venc)+' - '+fmtR(c.val)+'</span></div>';}).join('');
+
+  elL.innerHTML=(alertHtml||'')+( lista.length?lista.map(function(c){
+    var sc=c.status==='Pago'?'bok':c.status==='Atrasado'||( c.venc&&c.venc<hoje_&&c.status!=='Pago')?'bb':'bp';
+    var stxt=c.status==='Pago'?'Pago':c.venc&&c.venc<hoje_&&c.status!=='Pago'?'Atrasado':c.status;
+    return '<div class="lrow"><div class="lm">'+
+      '<div class="ltit">'+c.desc+'</div>'+
+      '<div class="lsub">'+c.cat+' - Venc: '+fmtD(c.venc)+(c.pag?' - Pago: '+fmtD(c.pag):'')+'</div>'+
+      (c.obs?'<div class="lsub" style="font-style:italic">'+c.obs+'</div>':'')+
+    '</div><div class="lr">'+
+      '<div class="lv">'+fmtR(c.val)+'</div>'+
+      '<span class="badge '+sc+'">'+stxt+'</span>'+
+      '<div style="display:flex;gap:5px;margin-top:5px;justify-content:flex-end">'+
+        '<button onclick="editarConta('+c.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
+        '<button class="bdel" onclick="delConta('+c.id+')">Excluir</button>'+
+      '</div>'+
+    '</div></div>';
+  }).join(''):'<div class="empty" style="padding:14px"><div class="ei">📄</div>Nenhuma conta registrada</div>');
+}
+
 function gerarIcone(){try{var c=document.createElement('canvas');c.width=512;c.height=512;var ctx=c.getContext('2d');var r=100;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(512-r,0);ctx.quadraticCurveTo(512,0,512,r);ctx.lineTo(512,512-r);ctx.quadraticCurveTo(512,512,512-r,512);ctx.lineTo(r,512);ctx.quadraticCurveTo(0,512,0,512-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();var g=ctx.createLinearGradient(0,0,512,512);g.addColorStop(0,'#3d8530');g.addColorStop(1,'#1a4015');ctx.fillStyle=g;ctx.fill();ctx.beginPath();ctx.arc(256,256,200,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fill();ctx.fillStyle='#ffffff';ctx.font='800 230px -apple-system,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FT',256,270);ctx.fillStyle='rgba(255,255,255,0.25)';ctx.fillRect(106,390,300,7);var lnk=document.getElementById('pwa-icon');if(lnk)lnk.href=c.toDataURL('image/png');}catch(e){}}
 
 (function init(){
   var h=hoje(),p=h.slice(0,8)+'01';
-  ['c-data','u-data','p-data','pec-data','ch-data','mn-data','v-data'].forEach(function(i){var el=document.getElementById(i);if(el)el.value=h;});
+  ['c-data','u-data','p-data','pec-data','ch-data','mn-data','v-data','ad-data','ct-venc'].forEach(function(i){var el=document.getElementById(i);if(el)el.value=h;});
   document.getElementById('r-de').value=p;document.getElementById('r-ate').value=h;
   var k=localStorage.getItem('fazenda_gemini');
   if(k){var el=document.getElementById('api-key');if(el)el.value=k;var el2=document.getElementById('api-key-peca');if(el2)el2.value=k;}

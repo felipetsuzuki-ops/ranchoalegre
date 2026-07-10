@@ -277,6 +277,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue'
           <div class="fg" style="margin:0"><label class="fl">Valor R$</label><input type="number" class="fi" id="ad-val" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>
           <div class="fg" style="margin:0"><label class="fl">Tipo</label><div class="sw"><select class="fsel" id="ad-tipo"><option>Adiantamento</option><option>Vale</option><option>Pagamento</option><option>Desconto</option></select></div></div>
         </div>
+        <div class="fr" style="margin-bottom:10px">
+          <div class="fg" style="margin:0"><label class="fl">Status</label><div class="sw"><select class="fsel" id="ad-status"><option>Pendente</option><option>Pago</option><option>Descontado em folha</option></select></div></div>
+          <div class="fg" style="margin:0"><label class="fl">Data pagamento</label><input type="date" class="fi" id="ad-data-pag"></div>
+        </div>
         <div class="fg"><label class="fl">Obs</label><textarea class="fta" id="ad-obs" placeholder="Opcional..." style="min-height:50px"></textarea></div>
         <button class="btn bg" id="ad-btn-salvar" onclick="salvarAdiant()">Registrar</button>
       </div></div>
@@ -1421,13 +1425,17 @@ function salvarAdiant(){
   var data=document.getElementById('ad-data').value;
   var val=parseFloat(document.getElementById('ad-val').value);
   var tipo=document.getElementById('ad-tipo').value;
+  var status=document.getElementById('ad-status').value;
+  var dataPag=document.getElementById('ad-data-pag').value;
   var obs=document.getElementById('ad-obs').value.trim();
   if(!fid||!data||isNaN(val)||val<=0){alert('Preencha funcionario, data e valor.');return;}
   var f=appDB.funcs.filter(function(f){return f.id===fid;})[0];
-  salvarFS('adiantamentos',{id:editId?Number(editId):nid(),fid:fid,fnome:f?f.nome:'',data:data,val:val,tipo:tipo,obs:obs});
+  salvarFS('adiantamentos',{id:editId?Number(editId):nid(),fid:fid,fnome:f?f.nome:'',data:data,val:val,tipo:tipo,status:status,dataPag:dataPag,obs:obs});
   document.getElementById('ad-val').value='';
   document.getElementById('ad-obs').value='';
+  document.getElementById('ad-data-pag').value='';
   document.getElementById('ad-edit-id').value='';
+  document.getElementById('ad-status').value='Pendente';
   document.getElementById('ad-btn-salvar').textContent='Registrar';
 }
 
@@ -1441,6 +1449,8 @@ function editarAdiant(id){
   document.getElementById('ad-data').value=a.data||'';
   document.getElementById('ad-val').value=a.val||'';
   document.getElementById('ad-tipo').value=a.tipo||'Adiantamento';
+  document.getElementById('ad-status').value=a.status||'Pendente';
+  document.getElementById('ad-data-pag').value=a.dataPag||'';
   document.getElementById('ad-obs').value=a.obs||'';
   document.getElementById('ad-btn-salvar').textContent='Salvar alteracao';
   document.getElementById('pages').scrollTop=0;
@@ -1449,25 +1459,21 @@ function editarAdiant(id){
 function renderAdiant(){
   var lista=appDB.adiantamentos||[];
   var mes=new Date().toISOString().slice(0,7);
-
-  // Resumo por funcionario
-  var porFunc={};
-  appDB.funcs.forEach(function(f){porFunc[f.id]={nome:f.nome,total:0};});
-  lista.forEach(function(a){
-    if(!porFunc[a.fid])porFunc[a.fid]={nome:a.fnome,total:0};
-    porFunc[a.fid].total+=Number(a.val||0);
-  });
-  var totalGeral=lista.reduce(function(s,a){return s+Number(a.val||0);},0);
+  var pendentes=lista.filter(function(a){return a.status!=='Pago'&&a.status!=='Descontado em folha';});
+  var pagos=lista.filter(function(a){return a.status==='Pago'||a.status==='Descontado em folha';});
+  var totalPend=pendentes.reduce(function(s,a){return s+Number(a.val||0);},0);
+  var totalPago=pagos.reduce(function(s,a){return s+Number(a.val||0);},0);
   var totalMes=lista.filter(function(a){return a.data&&a.data.startsWith(mes);}).reduce(function(s,a){return s+Number(a.val||0);},0);
 
   var elR=document.getElementById('adiant-resumo');
   if(elR){
     elR.innerHTML=
-      '<div class="st t"><div class="sl">Total mes</div><div class="sv" style="font-size:18px">'+fmtR(totalMes)+'</div></div>'+
-      '<div class="st r"><div class="sl">Total geral</div><div class="sv" style="font-size:18px">'+fmtR(totalGeral)+'</div></div>';
+      '<div class="st r"><div class="sl">Pendente</div><div class="sv" style="font-size:18px">'+fmtR(totalPend)+'</div><div class="ss">a pagar</div></div>'+
+      '<div class="st g"><div class="sl">Pago</div><div class="sv" style="font-size:18px">'+fmtR(totalPago)+'</div><div class="ss">quitado</div></div>'+
+      '<div class="st t"><div class="sl">Total mes</div><div class="sv" style="font-size:15px">'+fmtR(totalMes)+'</div></div>'+
+      '<div class="st b"><div class="sl">Total geral</div><div class="sv" style="font-size:15px">'+fmtR(totalPend+totalPago)+'</div></div>';
   }
 
-  // Lista por funcionario
   var elL=document.getElementById('lista-adiant');
   if(!elL)return;
   if(!lista.length){elL.innerHTML='<div class="empty"><div class="ei">💵</div>Nenhum adiantamento</div>';return;}
@@ -1475,31 +1481,41 @@ function renderAdiant(){
   // Group by funcionario
   var grupos={};
   lista.forEach(function(a){
-    var key=a.fid||a.fnome;
-    if(!grupos[key])grupos[key]={nome:a.fnome,itens:[],total:0};
+    var key=String(a.fid||a.fnome);
+    if(!grupos[key])grupos[key]={nome:a.fnome,itens:[],totalPend:0,totalPago:0};
     grupos[key].itens.push(a);
-    grupos[key].total+=Number(a.val||0);
+    if(a.status==='Pago'||a.status==='Descontado em folha')grupos[key].totalPago+=Number(a.val||0);
+    else grupos[key].totalPend+=Number(a.val||0);
   });
 
   elL.innerHTML=Object.values(grupos).map(function(g){
     var itens=g.itens.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');});
-    return '<div class="card" style="margin-bottom:14px"><div class="ch">'+
-      '<span class="ct">'+g.nome+'</span>'+
-      '<span style="font-size:14px;font-weight:800;color:var(--d)">'+fmtR(g.total)+'</span>'+
-    '</div><div style="padding:0 16px">'+
+    return '<div class="card" style="margin-bottom:14px">'+
+      '<div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px">'+
+        '<span class="ct">'+g.nome+'</span>'+
+        '<div style="display:flex;gap:12px;font-size:12px">'+
+          '<span style="color:var(--d);font-weight:700">Pendente: '+fmtR(g.totalPend)+'</span>'+
+          '<span style="color:var(--g2);font-weight:700">Pago: '+fmtR(g.totalPago)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="padding:0 16px">'+
       itens.map(function(a){
+        var isPago=a.status==='Pago'||a.status==='Descontado em folha';
+        var sc=isPago?'bok':'bp';
         return '<div class="lrow"><div class="lm">'+
           '<div class="ltit">'+a.tipo+'</div>'+
-          '<div class="lsub">'+fmtD(a.data)+(a.obs?' - '+a.obs:'')+'</div>'+
+          '<div class="lsub">Adiantado: '+fmtD(a.data)+(a.dataPag?' | Pago: '+fmtD(a.dataPag):'')+'</div>'+
+          (a.obs?'<div class="lsub" style="font-style:italic">'+a.obs+'</div>':'')+
         '</div><div class="lr">'+
-          '<div class="lv" style="color:var(--d)">'+fmtR(a.val)+'</div>'+
-          '<div style="display:flex;gap:5px;margin-top:5px">'+
+          '<div class="lv" style="color:'+(isPago?'var(--g2)':'var(--d)')+'">'+fmtR(a.val)+'</div>'+
+          '<span class="badge '+sc+'" style="margin-bottom:4px">'+(a.status||'Pendente')+'</span>'+
+          '<div style="display:flex;gap:5px;margin-top:4px">'+
             '<button onclick="editarAdiant('+a.id+')" style="background:var(--bl);color:var(--b);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:none;cursor:pointer">Editar</button>'+
             '<button class="bdel" onclick="delAdiant('+a.id+')">Excluir</button>'+
           '</div>'+
         '</div></div>';
       }).join('')+
-    '</div></div>';
+      '</div></div>';
   }).join('');
 }
 

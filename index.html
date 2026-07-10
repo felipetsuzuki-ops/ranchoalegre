@@ -1027,9 +1027,11 @@ function renderChuva(){var chuvas=appDB.chuvas||[];var mes=new Date().toISOStrin
 
 function filtPer(lista,campo){var de=document.getElementById('r-de').value,ate=document.getElementById('r-ate').value;return lista.filter(function(i){if(de&&i[campo]<de)return false;if(ate&&i[campo]>ate)return false;return true;});}
 function renderRel(){
-  renderVendas();var comp=filtPer(appDB.compras,'data'),tar=filtPer(appDB.tarefas,'data'),pecs=filtPer(appDB.pecas,'data');var pCat={},pForn={},pSafra={};
+  renderVendas();
+  renderContas();var comp=filtPer(appDB.compras,'data'),tar=filtPer(appDB.tarefas,'data'),pecs=filtPer(appDB.pecas,'data');var pCat={},pForn={},pSafra={};
   comp.forEach(function(c){pCat[c.cat]=(pCat[c.cat]||0)+c.qtd*c.val;var f=c.forn||'Sem fornecedor';pForn[f]=(pForn[f]||0)+c.qtd*c.val;var sk=(c.safra||'Sem safra')+' - '+(c.cultura||'Sem cultura');pSafra[sk]=(pSafra[sk]||0)+c.qtd*c.val;});
-  pecs.forEach(function(p){var v=Number(p.val)||0;var cat=p.tipo||'Peca de reposicao';pCat[cat]=(pCat[cat]||0)+v;var f=p.forn||'Sem fornecedor';pForn[f]=(pForn[f]||0)+v;});function toRows(obj){var e=Object.entries(obj).sort(function(a,b){return b[1]-a[1];});return e.length?e.map(function(e){return '<div class="lrow"><span class="ltit">'+e[0]+'</span><span class="lv">'+fmtR(e[1])+'</span></div>';}).join(''):'<div class="empty" style="padding:14px">Sem dados</div>';}document.getElementById('rel-cat').innerHTML=toRows(pCat);document.getElementById('rel-forn').innerHTML=toRows(pForn);document.getElementById('rel-safra').innerHTML=toRows(pSafra);document.getElementById('rel-func').innerHTML=appDB.funcs.map(function(f){var ft=tar.filter(function(t){return t.fid===f.id;});var conc=ft.filter(function(t){return t.stat==='Concluida';}).length;return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+ft.length+' tarefa(s) - '+conc+' concluida(s)</div></div><div class="lv">'+conc+'</div></div>';}).join('')||'<div class="empty" style="padding:14px">Sem dados</div>';}
+  pecs.forEach(function(p){var v=Number(p.val)||0;var cat=p.tipo||'Peca de reposicao';pCat[cat]=(pCat[cat]||0)+v;var f=p.forn||'Sem fornecedor';pForn[f]=(pForn[f]||0)+v;});
+  filtPer(appDB.contas||[],'venc').filter(function(c){return c.status==='Pago';}).forEach(function(c){var v=Number(c.val)||0;pCat[c.cat||'Outros']=(pCat[c.cat||'Outros']||0)+v;});function toRows(obj){var e=Object.entries(obj).sort(function(a,b){return b[1]-a[1];});return e.length?e.map(function(e){return '<div class="lrow"><span class="ltit">'+e[0]+'</span><span class="lv">'+fmtR(e[1])+'</span></div>';}).join(''):'<div class="empty" style="padding:14px">Sem dados</div>';}document.getElementById('rel-cat').innerHTML=toRows(pCat);document.getElementById('rel-forn').innerHTML=toRows(pForn);document.getElementById('rel-safra').innerHTML=toRows(pSafra);document.getElementById('rel-func').innerHTML=appDB.funcs.map(function(f){var ft=tar.filter(function(t){return t.fid===f.id;});var conc=ft.filter(function(t){return t.stat==='Concluida';}).length;return '<div class="lrow"><div class="lm"><div class="ltit">'+f.nome+'</div><div class="lsub">'+ft.length+' tarefa(s) - '+conc+' concluida(s)</div></div><div class="lv">'+conc+'</div></div>';}).join('')||'<div class="empty" style="padding:14px">Sem dados</div>';}
 
 function expXlsx(tipo){
   if(tipo==='contas'){
@@ -1059,11 +1061,12 @@ function expRelatorio(){
 
   // Chuvas
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((appDB.chuvas||[]).map(function(c){return {'Data':fmtD(c.data),'MM':c.mm,'Obs':c.obs};})),'Chuvas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((appDB.contas||[]).map(function(c){return {'Descricao':c.desc,'Categoria':c.cat,'Vencimento':fmtD(c.venc),'Pagamento':fmtD(c.pag),'Valor':c.val,'Status':c.status,'Obs':c.obs};})),'Contas');
 
   // Resumo por Area (LAVOURA x PECUARIA)
   var catLavoura=['Semente','Fertilizante','Defensivo','Combustivel'];
   var catPec=['Racao','Medicamento veterinario'];
-  var totLav=0,totPec=0,totMO=0,totPecas=0,totVendaGrao=0,totVendaGado=0,totVendaOutro=0;
+  var totLav=0,totPec=0,totMO=0,totPecas=0,totContas=0,totVendaGrao=0,totVendaGado=0,totVendaOutro=0;
   comp.forEach(function(c){
     var v=c.qtd*c.val;
     if(catLavoura.indexOf(c.cat)>=0)totLav+=v;
@@ -1073,6 +1076,9 @@ function expRelatorio(){
     var v=Number(p.val)||0;
     if(p.tipo==='Mao de obra terceirizada'||p.tipo==='Servico externo')totMO+=v;
     else totPecas+=v;
+  });
+  (appDB.contas||[]).filter(function(c){return c.status==='Pago';}).forEach(function(c){
+    totContas+=Number(c.val||0);
   });
   (appDB.vendas||[]).forEach(function(v){
     if(v.tipo==='grao')totVendaGrao+=Number(v.total||0);
@@ -1084,7 +1090,8 @@ function expRelatorio(){
     {'Area':'Pecuaria','Categoria':'Insumos (Racao, Medicamento veterinario)','Total R$':parseFloat(totPec.toFixed(2))},
     {'Area':'Maquinas','Categoria':'Pecas de reposicao e manutencao','Total R$':parseFloat(totPecas.toFixed(2))},
     {'Area':'Mao de obra','Categoria':'Servicos terceirizados','Total R$':parseFloat(totMO.toFixed(2))},
-    {'Area':'TOTAL GERAL','Categoria':'','Total R$':parseFloat((totLav+totPec+totPecas+totMO).toFixed(2))},
+    {'Area':'Contas','Categoria':'Energia, Agua, Internet, Impostos...','Total R$':parseFloat(totContas.toFixed(2))},
+    {'Area':'TOTAL GERAL','Categoria':'','Total R$':parseFloat((totLav+totPec+totPecas+totMO+totContas).toFixed(2))},
     {'Area':''},
     {'Area':'RECEITAS','Categoria':''},
     {'Area':'Venda de Graos','Categoria':'Soja, Milho, Trigo...','Total R$':parseFloat(totVendaGrao.toFixed(2))},
@@ -1092,7 +1099,7 @@ function expRelatorio(){
     {'Area':'Outras Vendas','Categoria':'','Total R$':parseFloat(totVendaOutro.toFixed(2))},
     {'Area':'TOTAL RECEITAS','Categoria':'','Total R$':parseFloat((totVendaGrao+totVendaGado+totVendaOutro).toFixed(2))},
     {'Area':''},
-    {'Area':'RESULTADO','Categoria':'Receitas - Despesas','Total R$':parseFloat((totVendaGrao+totVendaGado+totVendaOutro-totLav-totPec-totPecas-totMO).toFixed(2))}
+    {'Area':'RESULTADO','Categoria':'Receitas - Despesas','Total R$':parseFloat((totVendaGrao+totVendaGado+totVendaOutro-totLav-totPec-totPecas-totMO-totContas).toFixed(2))}
   ];
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(resumo),'Resumo por Area');
 
